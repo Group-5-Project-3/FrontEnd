@@ -1,21 +1,42 @@
-// src/components/NavBar.js
 import React from 'react';
-import { Navbar, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Box, HStack, Text, Button, useBreakpointValue } from 'native-base';
+import { useNavigation } from '@react-navigation/native';
 
 function NavBar() {
+  const navigation = useNavigation();
+  const buttonSize = useBreakpointValue({ base: 'sm', md: 'md' });
+
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
-      <Navbar.Brand as={Link} to="/">My Map App</Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto">
-          <Nav.Link as={Link} to="/">Home</Nav.Link>
-          <Nav.Link as={Link} to="/trails">Trails</Nav.Link>
-        </Nav>
-      </Navbar.Collapse>
-    </Navbar>
+    <Box bg="dark.700" px={4} py={3} w="100%">
+      <HStack space={4} alignItems="center" justifyContent="space-between">
+        <Text
+          color="white"
+          fontSize="lg"
+          fontWeight="bold"
+          onPress={() => navigation.navigate('WebScreen')} // Use 'WebScreen' if that's the intended home screen
+        >
+          My Map App
+        </Text>
+        <HStack space={3}>
+          <Button
+            variant="ghost"
+            colorScheme="light"
+            size={buttonSize}
+            onPress={() => navigation.navigate('WebScreen')} // Match the screen name here
+          >
+            Home
+          </Button>
+          <Button
+            variant="ghost"
+            colorScheme="light"
+            size={buttonSize}
+            onPress={() => navigation.navigate('Trails')} // Ensure this matches the 'Trails' screen in the navigator
+          >
+            Trails
+          </Button>
+        </HStack>
+      </HStack>
+    </Box>
   );
 }
 
