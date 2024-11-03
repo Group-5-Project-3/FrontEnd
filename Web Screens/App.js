@@ -1,20 +1,14 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import WebScreen from './pages/Web';
-import NavBar from './components/NavBar'; // Import the NavBar component
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { AuthProvider } from './AuthContext';
+import WebApp from './WebApp'; // Ensure the path is correct
+import { NativeBaseProvider } from 'native-base';
 
-const Stack = createStackNavigator();
+const App = () => (
+  <AuthProvider>
+    <NativeBaseProvider>
+      <WebApp />
+    </NativeBaseProvider>
+  </AuthProvider>
+);
 
-const WebApp = () => {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="WebScreen">
-        <Stack.Screen name="WebScreen" component={WebScreen} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-};
-
-export default WebApp;
+export default App;
