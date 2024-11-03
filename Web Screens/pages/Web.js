@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from 'native-base';
-import MapComponent from './MapComponent';
+import MapComponent from '../components/MapComponent';
 
 export default function WebScreen() {
   return (
