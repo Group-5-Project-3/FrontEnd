@@ -8,6 +8,7 @@ import Settings from '../pages/Settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../AuthContext'; // Ensure the path is correct
 import { Spinner, Box } from 'native-base'; // Import Spinner for a loading indicator
+import Test from '../pages/Test';
 
 const Stack = createStackNavigator();
 
@@ -66,6 +67,11 @@ const Routes = () => {
       <Stack.Screen
         name="Trails"
         component={Trails}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Test"
+        component={Test}
         options={{ headerShown: false }}
       />
       <Stack.Screen

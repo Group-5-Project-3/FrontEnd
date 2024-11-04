@@ -9,6 +9,7 @@ const Settings = ({ navigation }) => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('@username');
+      await AsyncStorage.removeItem('@auth_token');
       setIsLoggedIn(false); // Update the context state to false
       navigation.navigate('Login'); // Navigate to the Login screen after logging out
     } catch (e) {

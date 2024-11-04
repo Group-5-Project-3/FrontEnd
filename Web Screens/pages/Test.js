@@ -1,16 +1,15 @@
 import React from 'react';
 import { Box } from 'native-base';
-import MapComponent from '../components/MapComponent';
 
 
 
 
 
-export default function WebScreen() {
+export default function Test() {
 
   return (
     <Box flex={1} bg="gray.100" borderRadius="md" overflow="hidden">
-      <MapComponent />
+        <p>Will Test Page</p>
     </Box>
   );
 }

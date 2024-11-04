@@ -38,9 +38,17 @@ function NavBar() {
             variant="ghost"
             colorScheme="light"
             size={buttonSize}
-            onPress={() => navigation.navigate('Settings')} // Ensure this matches the 'Trails' screen in the navigator
+            onPress={() => navigation.navigate('Settings')} 
           >
             Settings
+          </Button>
+          <Button
+            variant="ghost"
+            colorScheme="light"
+            size={buttonSize}
+            onPress={() => navigation.navigate('Test')} 
+          >
+            Test
           </Button>
         </HStack>
       </HStack>
