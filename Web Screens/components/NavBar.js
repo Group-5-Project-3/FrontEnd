@@ -7,7 +7,7 @@ function NavBar() {
   const buttonSize = useBreakpointValue({ base: 'sm', md: 'md' });
 
   return (
-    <Box bg="dark.700" px={4} py={3} w="100%">
+    <Box bg="black" px={4} py={3} w="100%">
       <HStack space={4} alignItems="center" justifyContent="space-between">
         <Text
           color="white"
@@ -15,7 +15,7 @@ function NavBar() {
           fontWeight="bold"
           onPress={() => navigation.navigate('WebScreen')} // Use 'WebScreen' if that's the intended home screen
         >
-          My Map App
+          TrailBlazer
         </Text>
         <HStack space={3}>
           <Button
@@ -23,6 +23,8 @@ function NavBar() {
             colorScheme="light"
             size={buttonSize}
             onPress={() => navigation.navigate('WebScreen')} // Match the screen name here
+            _text={{ color: "white" }} // Set button text color to white
+            _hover={{ bg: "#008001" }} // Change background color on hover
           >
             Home
           </Button>
@@ -31,6 +33,8 @@ function NavBar() {
             colorScheme="light"
             size={buttonSize}
             onPress={() => navigation.navigate('Trails')} // Ensure this matches the 'Trails' screen in the navigator
+            _text={{ color: "white" }} // Set button text color to white
+            _hover={{ bg: "#008001" }} // Change background color on hover
           >
             Trails
           </Button>
@@ -38,9 +42,21 @@ function NavBar() {
             variant="ghost"
             colorScheme="light"
             size={buttonSize}
-            onPress={() => navigation.navigate('Settings')} // Ensure this matches the 'Trails' screen in the navigator
+            onPress={() => navigation.navigate('Settings')}
+            _text={{ color: "white" }} // Set button text color to white
+            _hover={{ bg: "#008001" }} // Change background color on hover
           >
             Settings
+          </Button>
+          <Button
+            variant="ghost"
+            colorScheme="light"
+            size={buttonSize}
+            onPress={() => navigation.navigate('Test')}
+            _text={{ color: "white" }} // Set button text color to white
+            _hover={{ bg: "#008001" }} // Change background color on hover
+          >
+            Test
           </Button>
         </HStack>
       </HStack>

@@ -1,6 +1,8 @@
 // MapComponent.js
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { decodeJWT } from '../../APICalls';
+
 
 const containerStyle = {
     width: '100%',
@@ -15,6 +17,7 @@ function MapComponent() {
 
     useEffect(() => {
         if (navigator.geolocation) {
+            
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     setCurrentLocation({
