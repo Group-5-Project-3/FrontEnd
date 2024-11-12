@@ -8,13 +8,92 @@ import {
   ImageBackground,
   Modal,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, createContext, useContext } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { login, register } from "../APICalls";
+import { AuthContext } from "./AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 const StartUp = () => {
   const [modalSignInVisible, setSignModalVisible] = useState(false);
   const [modalCreateAccVisible, setCreateAccModalVisible] = useState(false);
+  const { setIsLoggedIn } = useContext(AuthContext);
+  const navigation = useNavigation();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [email, setEmail] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleLogin = async () => {
+    //alert("sign in pressed. Username: " + username + " Password: " + password);
+
+    try {
+      const token = await login(username, password);
+      if (token) {
+        //alert("putting async...");
+        await AsyncStorage.setItem("@auth_token", token);
+        await AsyncStorage.setItem("@username", username);
+        setIsLoggedIn(true); // Update context state
+        //navigation.navigate("WebScreen");
+        setSignModalVisible(false);
+        navigation.navigate("MobileScreen");
+        //alert("success");
+      } else {
+        alert("Login failed");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Invalid username or password");
+    }
+  };
+
+  const handleSignup = async () => {
+    if (!username || !email || !password || !confirmPassword) {
+      alert("All fields are required");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      // Call the register function with user data
+      const userData = { username, email, password };
+      const response = await register(userData);
+
+      if (response) {
+        setCreateAccModalVisible(false);
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        alert("Sign up successful");
+        // Optionally store the username in AsyncStorage or navigate directly
+        //navigation.navigate('Login');
+      } else {
+        alert("Sign up failed");
+      }
+    } catch (e) {
+      console.error("Failed to save user data", e);
+      alert("An error occurred during sign up");
+    }
+  };
+
+  const loginToSignUp = () => {
+    setSignModalVisible(false);
+    setCreateAccModalVisible(true);
+  };
+
+  const signUpToLogin = () => {
+    setCreateAccModalVisible(false);
+    setSignModalVisible(true);
+  };
 
   return (
     <ImageBackground
@@ -33,14 +112,14 @@ const StartUp = () => {
           style={styles.bottomViewButton}
           onPress={() => setSignModalVisible(true)}
         >
-          <Text style={styles.bottomViewText}>Log In</Text>
+          <Text style={styles.bottomViewText}>Login</Text>
         </Pressable>
 
         <Pressable
           style={styles.bottomViewButton}
           onPress={() => setCreateAccModalVisible(true)}
         >
-          <Text style={styles.bottomViewText}>Create Account</Text>
+          <Text style={styles.bottomViewText}>Sign Up</Text>
         </Pressable>
 
         <Pressable style={styles.bottomViewButton}>
@@ -57,19 +136,19 @@ const StartUp = () => {
         <SafeAreaView style={styles.modalBackground}>
           <View style={styles.modalTopContainer}>
             <Pressable onPress={() => setSignModalVisible(false)}>
-              <Text style={styles.modalBackText}>Back</Text>
+              <Text style={styles.modalBackText}>Cancel</Text>
             </Pressable>
-            <View style={styles.modalCenterContainer}>
-              <Text style={styles.modalTitleText}>Log In</Text>
-            </View>
           </View>
+
+          <Text style={styles.modalTitleText}>Login</Text>
 
           <SafeAreaView style={styles.inputContainer}>
             <TextInput
               placeholder="Username"
               placeholderTextColor="#bfbfbf"
               style={styles.inputText}
-              //   value={user.username}
+              value={username}
+              onChangeText={setUsername}
             />
 
             <View style={styles.lineSeprator}></View>
@@ -79,12 +158,20 @@ const StartUp = () => {
               placeholderTextColor="#bfbfbf"
               style={styles.inputText}
               secureTextEntry={true}
+              value={password}
+              onChangeText={setPassword}
 
               //   value={user.password}
             />
           </SafeAreaView>
-          <Pressable style={styles.modalActionButton}>
-            <Text style={styles.bottomViewText}>Sign In</Text>
+          <Pressable style={styles.modalActionButton} onPress={handleLogin}>
+            <Text style={styles.bottomViewText}>Login</Text>
+          </Pressable>
+
+          <Pressable onPress={loginToSignUp}>
+            <Text style={styles.modalBackText}>
+              Don't have an account? Sign up
+            </Text>
           </Pressable>
         </SafeAreaView>
       </Modal>
@@ -98,19 +185,29 @@ const StartUp = () => {
         <SafeAreaView style={styles.modalBackground}>
           <View style={styles.modalTopContainer}>
             <Pressable onPress={() => setCreateAccModalVisible(false)}>
-              <Text style={styles.modalBackText}>Back</Text>
+              <Text style={styles.modalBackText}>Cancel</Text>
             </Pressable>
-            <View style={styles.modalCenterContainer}>
-              <Text style={styles.modalTitleText}>Create Account</Text>
-            </View>
           </View>
+          <Text style={styles.modalTitleText}>Sign Up</Text>
 
           <SafeAreaView style={styles.inputContainer}>
             <TextInput
               placeholder="Username"
               placeholderTextColor="#bfbfbf"
               style={styles.inputText}
-              //   value={user.username}
+              value={username}
+              onChangeText={setUsername}
+            />
+
+            <View style={styles.lineSeprator}></View>
+
+            <TextInput
+              placeholder="Email"
+              placeholderTextColor="#bfbfbf"
+              secureTextEntry={true}
+              style={styles.inputText}
+              value={email}
+              onChangeText={setEmail}
             />
 
             <View style={styles.lineSeprator}></View>
@@ -120,7 +217,8 @@ const StartUp = () => {
               placeholderTextColor="#bfbfbf"
               secureTextEntry={true}
               style={styles.inputText}
-              //   value={user.password}
+              value={password}
+              onChangeText={setPassword}
             />
 
             <View style={styles.lineSeprator}></View>
@@ -130,11 +228,18 @@ const StartUp = () => {
               placeholderTextColor="#bfbfbf"
               secureTextEntry={true}
               style={styles.inputText}
-              //   value={user.password}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
             />
           </SafeAreaView>
-          <Pressable style={styles.modalActionButton}>
-            <Text style={styles.bottomViewText}>Create Account</Text>
+          <Pressable style={styles.modalActionButton} onPress={handleSignup}>
+            <Text style={styles.bottomViewText}>Sign Up</Text>
+          </Pressable>
+
+          <Pressable onPress={signUpToLogin}>
+            <Text style={styles.modalBackText}>
+              Already have an account? Login
+            </Text>
           </Pressable>
         </SafeAreaView>
       </Modal>
