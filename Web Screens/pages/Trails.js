@@ -15,6 +15,7 @@ export default function Trails() {
 
           try {
             const data = await getNearbyParks(latitude, longitude);
+            console.log(data);
             if (data && data.results) {
               setPlaces(data.results);
             } else {

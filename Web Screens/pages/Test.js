@@ -12,6 +12,7 @@ const Setting = () => {
     'Appearance',
     'Language',
     'About',
+    'Log Out',
   ];
 
   // Handlers for each setting action
@@ -40,6 +41,13 @@ const Setting = () => {
         return (
           <VStack space={4}>
             <Text fontSize="2xl" fontWeight="bold">Privacy & Security</Text>
+            {/* Additional privacy settings */}
+          </VStack>
+        );
+      case 'Log Out':
+        return (
+          <VStack space={4}>
+            <Text fontSize="2xl" fontWeight="bold">Log Out</Text>
             {/* Additional privacy settings */}
           </VStack>
         );

@@ -9,6 +9,27 @@ const containerStyle = {
     height: '100%', // Replace 50px with the actual height of your nav bar
 };
 
+const mapOptions = {
+    disableDefaultUI: true, // Disables default UI controls
+    styles: [
+        {
+            featureType: 'poi', // Points of interest
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+        },
+        {
+            featureType: 'transit', // Transit stations
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+        },
+        {
+            featureType: 'road', // Roads
+            elementType: 'labels',
+            stylers: [{ visibility: 'off' }],
+        },
+    ],
+};
+
 function MapComponent() {
     const [currentLocation, setCurrentLocation] = useState({
         lat: 40.7128, // Default: New York City
@@ -40,6 +61,7 @@ function MapComponent() {
                 mapContainerStyle={containerStyle}
                 center={currentLocation}
                 zoom={12}
+                options={mapOptions} // Apply map options here
             >
                 {/* Marker at the current location */}
                 <Marker position={currentLocation} />
