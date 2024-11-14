@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { VStack, Input, Button } from 'native-base';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../../AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { login } from '../../APICalls';
+import { login } from '../../../APICalls';
 import { useNavigation } from '@react-navigation/native';
 
 export default function LoginForm({ setSelectedForm }) {
