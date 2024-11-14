@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { decodeJWT } from './components/utils';
+import { findUserByUserId } from '../APICalls';
 
 export const AuthContext = createContext();
 
@@ -18,7 +19,12 @@ export const AuthProvider = ({ children }) => {
           const currentTime = Math.floor(Date.now() / 1000);
 
           if (decoded.exp > currentTime) {
-            setUser(decoded); // Store decoded data in state
+            
+
+            const profileData = await findUserByUserId(decoded.sub);
+
+            // console.log(profileData);
+            setUser({ ...decoded, ...profileData}); // Store decoded data in state
             setIsLoggedIn(true);
           } else {
             await AsyncStorage.removeItem('@auth_token'); // Remove expired token

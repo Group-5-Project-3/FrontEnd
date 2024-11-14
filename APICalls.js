@@ -43,7 +43,7 @@ export const register = async (userData) => {
 };
 
 // Find User ID by username function
-export const findUserIdByUsername = async (username) => {
+export const findUserByUserId = async (id) => {
     try {
         // Retrieve the token from AsyncStorage
         const token = await AsyncStorage.getItem('authToken');
@@ -51,7 +51,7 @@ export const findUserIdByUsername = async (username) => {
             throw new Error('No token found. Please log in.');
         }
 
-        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/username/${username}`, {
+        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}` // Use token if the endpoint requires authentication
