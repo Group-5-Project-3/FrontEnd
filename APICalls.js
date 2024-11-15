@@ -43,7 +43,7 @@ export const register = async (userData) => {
 };
 
 // Find User ID by username function
-export const findUserIdByUsername = async (username) => {
+export const findUserByUserId = async (id) => {
     try {
         // Retrieve the token from AsyncStorage
         const token = await AsyncStorage.getItem('authToken');
@@ -51,7 +51,7 @@ export const findUserIdByUsername = async (username) => {
             throw new Error('No token found. Please log in.');
         }
 
-        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/username/${username}`, {
+        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}` // Use token if the endpoint requires authentication
@@ -94,4 +94,33 @@ export const getNearbyParks = async (latitude, longitude, radius = 5000, type = 
     }
 };
 
+export const updateUser = async (id, { username, email, firstName, lastName, password }) => {
+  const body = {};
+  if (username !== undefined) body.username = username;
+  if (email !== undefined) body.email = email;
+  if (firstName !== undefined) body.firstName = firstName;
+  if (lastName !== undefined) body.lastName = lastName;
+  if (password !== undefined) body.password = password;
 
+  if (Object.keys(body).length === 0) {
+    throw new Error("At least one field must be provided to update.");
+  }
+
+  try {
+    const token = await AsyncStorage.getItem('@auth_token');
+
+    const response = await axios.put(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${id}`,
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || 'Failed to update user');
+  }
+};

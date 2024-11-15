@@ -1,79 +1,53 @@
-import React, { useState } from 'react';
-import { Box, HStack, VStack, Text, Button, Divider, Pressable, ScrollView } from 'native-base';
+// Trails.js
+import React, { useEffect, useState } from 'react';
+import { Box, Text, VStack, Spinner } from 'native-base';
+import MapComponent from '../../MapComponent';
+import { getNearbyParks } from '../../APICalls';
 
-const Setting = () => {
-  const [selectedCategory, setSelectedCategory] = useState('Account');
+export default function Trails() {
+  const [places, setPlaces] = useState([]);
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Categories and sections for the settings sidebar
-  const categories = [
-    'Account',
-    'Notifications',
-    'Privacy & Security',
-    'Appearance',
-    'Language',
-    'About',
-  ];
+  useEffect(() => {
+    const fetchUserLocationAndPlaces = async () => {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentLocation({ lat: latitude, lng: longitude });
 
-  // Handlers for each setting action
-  const renderCategoryContent = () => {
-    switch (selectedCategory) {
-      case 'Account':
-        return (
-          <VStack space={4}>
-            <Text fontSize="2xl" fontWeight="bold">Account Settings</Text>
-            <Button colorScheme="blue">Change Name</Button>
-            <Button colorScheme="blue">Change Email</Button>
-            <Button colorScheme="blue">Profile Picture URL</Button>
-            <Button colorScheme="blue">Change Username</Button>
-            <Button colorScheme="blue">Change Password</Button>
-            <Button colorScheme="red">Delete Account</Button>
-          </VStack>
-        );
-      case 'Notifications':
-        return (
-          <VStack space={4}>
-            <Text fontSize="2xl" fontWeight="bold">Notification Settings</Text>
-            {/* Additional notification settings */}
-          </VStack>
-        );
-      case 'Privacy & Security':
-        return (
-          <VStack space={4}>
-            <Text fontSize="2xl" fontWeight="bold">Privacy & Security</Text>
-            {/* Additional privacy settings */}
-          </VStack>
-        );
-      // Add other cases as needed for each category
-      default:
-        return <Text>Select a category</Text>;
-    }
-  };
+          try {
+            const data = await getNearbyParks(latitude, longitude);
+            setPlaces(data.results || []);
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          setError('Failed to get user location');
+          setLoading(false);
+        }
+      );
+    };
+
+    fetchUserLocationAndPlaces();
+  }, []);
 
   return (
-    <HStack flex={1} w="100%" bg="gray.100">
-      {/* Sidebar */}
-      <VStack w="30%" h="100%" p={4} space={4} bg="gray.900">
-        <Text fontSize="xl" color="white" fontWeight="bold">Settings</Text>
-        {categories.map((category) => (
-          <Pressable
-            key={category}
-            onPress={() => setSelectedCategory(category)}
-            bg={selectedCategory === category ? 'gray.700' : 'transparent'}
-            py={2} px={4} rounded="md"
-          >
-            <Text color="white" fontSize="md">{category}</Text>
-          </Pressable>
-        ))}
-      </VStack>
-
-      {/* Main Content Area */}
-      <Box flex={1} p={4}>
-        <ScrollView>
-          {renderCategoryContent()}
-        </ScrollView>
-      </Box>
-    </HStack>
+    <Box flex={1} safeArea p="2" py="8" w="100%">
+      {loading ? (
+        <Spinner accessibilityLabel="Loading places" />
+      ) : error ? (
+        <Text color="red.500">Error: {error}</Text>
+      ) : currentLocation ? (
+        <MapComponent places={places} currentLocation={currentLocation} />
+      ) : (
+        <Text>No places found.</Text>
+      )}
+    </Box>
   );
-};
-
-export default Setting;
+}

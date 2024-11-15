@@ -4,9 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { login } from '../../APICalls';
 import { AuthContext } from '../AuthContext';
 import { Dimensions, StyleSheet } from 'react-native';
-import LoginForm from '../components/LoginForm';
-import CreateAccountForm from '../components/CreateAccountForm';
-import GoogleLoginForm from '../components/GoogleLoginForm';
+import LoginForm from '../components/startScreen/LoginForm';
+import CreateAccountForm from '../components/startScreen/CreateAccountForm';
+import GoogleLoginForm from '../components/startScreen/GoogleLoginForm';
 
 const HomeScreen = ({ navigation }) => {
   const [selectedForm, setSelectedForm] = useState(null);

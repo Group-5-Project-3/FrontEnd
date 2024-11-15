@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { VStack, Input, Button } from 'native-base';
+import { VStack, Input, Button, HStack } from 'native-base';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { register } from '../../APICalls';
+import { register } from '../../../APICalls';
 
 export default function CreateAccountForm({ setSelectedForm }) {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
     const handleSignup = async () => {
-        if (!username || !email || !password || !confirmPassword) {
+        if (!username || !email || !password || !confirmPassword || !firstName || !lastName) {
             alert('All fields are required');
             return;
         }
@@ -22,7 +24,7 @@ export default function CreateAccountForm({ setSelectedForm }) {
 
         try {
             // Call the register function with user data
-            const userData = { username, email, password };
+            const userData = { username, email, password, firstName, lastName };
             const response = await register(userData);
 
 
@@ -41,6 +43,24 @@ export default function CreateAccountForm({ setSelectedForm }) {
 
     return (
         <VStack space={4} width="80%">
+            <HStack space={2} width="100%">
+                <Input
+                    placeholder="First Name"
+                    variant="filled"
+                    bg="white"
+                    flex={1} // Adjusts the width within the HStack
+                    _focus={{ borderColor: '#008001', color: 'white' }}
+                    onChangeText={setFirstName}
+                />
+                <Input
+                    placeholder="Last Name"
+                    variant="filled"
+                    bg="white"
+                    flex={1} // Adjusts the width within the HStack
+                    _focus={{ borderColor: '#008001', color: 'white' }}
+                    onChangeText={setLastName}
+                />
+            </HStack>
             <Input
                 placeholder="Username"
                 variant="filled"
