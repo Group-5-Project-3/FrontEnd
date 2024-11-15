@@ -1,30 +1,46 @@
-// Setting.js
-
 import React, { useState, useContext } from 'react';
-import { Box, HStack, VStack, Text, Pressable, ScrollView } from 'native-base';
+import { Box, HStack, VStack, Text, Pressable, ScrollView, Button, Center, Spinner } from 'native-base';
 import { AuthContext } from '../AuthContext';
 import AccountSettings from '../components/settings/AccountSetting';
 
 const Setting = () => {
   const [selectedCategory, setSelectedCategory] = useState('Account');
-  const { user } = useContext(AuthContext);
+  const { user, loading, logout } = useContext(AuthContext);
 
   const categories = ['Account', 'Notifications', 'About', 'Log Out'];
+
+  const handleLogout = () => {
+    logout();
+  };
 
   const renderCategoryContent = () => {
     switch (selectedCategory) {
       case 'Account':
-        return <AccountSettings user={user} />;
+        return user ? <AccountSettings user={user} /> : <Text>Loading user data...</Text>;
       case 'Notifications':
         return <Text fontSize="2xl" fontWeight="bold">Notification Settings</Text>;
       case 'About':
         return <Text fontSize="2xl" fontWeight="bold">About</Text>;
       case 'Log Out':
-        return <Text fontSize="2xl" fontWeight="bold">Log Out</Text>;
+        return (
+          <VStack space={4}>
+            <Text fontSize="2xl" fontWeight="bold">Are you sure you want to log out?</Text>
+            <Button onPress={handleLogout} colorScheme="red">Log Out</Button>
+          </VStack>
+        );
       default:
         return <Text>Select a category</Text>;
     }
   };
+
+  if (loading) {
+    return (
+      <Center flex={1}>
+        <Spinner color="primary.500" size="lg" />
+        <Text>Loading Settings...</Text>
+      </Center>
+    );
+  }
 
   return (
     <HStack flex={1} w="100%" bg="gray.100">

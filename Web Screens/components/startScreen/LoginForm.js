@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 export default function LoginForm({ setSelectedForm }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { setIsLoggedIn } = useContext(AuthContext);
+    const { setIsLoggedIn, loginUser } = useContext(AuthContext);
     const navigation = useNavigation();
 
     const handleLogin = async () => {
@@ -16,12 +16,8 @@ export default function LoginForm({ setSelectedForm }) {
             const token = await login(username, password);
 
             if (token) {
-                // Store token and username in AsyncStorage
-                await AsyncStorage.setItem('@auth_token', token);
-                await AsyncStorage.setItem('@username', username);
-
-                // Update login state in AuthContext
-                setIsLoggedIn(true);
+                // Update login state and user information in AuthContext
+                await loginUser(token, username);
 
                 // Navigate to WebScreen
                 navigation.navigate('WebScreen');

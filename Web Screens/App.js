@@ -4,11 +4,13 @@ import WebApp from './WebApp'; // Ensure the path is correct
 import { NativeBaseProvider } from 'native-base';
 
 const App = () => (
-  <AuthProvider>
+  
     <NativeBaseProvider>
-      <WebApp />
+      <AuthProvider>
+        <WebApp />
+      </AuthProvider>
     </NativeBaseProvider>
-  </AuthProvider>
+  
 );
 
 export default App;

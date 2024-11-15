@@ -1,14 +1,20 @@
 import React, { useContext, useState } from 'react';
-import { Alert } from 'react-native';
 import { AuthContext } from '../../AuthContext';
-import { updateUser } from '../../../APICalls';
+import { updateUser as updatedUserAPI } from '../../../APICalls';
 
 const useSettingsActions = () => {
     const { user } = useContext(AuthContext);
   
-    const editName = (newFirstName, newLastName) => {
-      updateUser(user.sub, {firstName: newFirstName, lastName: newLastName});
-      console.log("Edit user editName clicked", user?.sub);
+    const editName = async (newFirstName, newLastName) => {
+      // updatedUserAPI(user.sub, {firstName: newFirstName, lastName: newLastName});
+      try {
+        const response = await updateUserAPI(user.sub, { firstName: newFirstName, lastName: newLastName });
+        updateUser({ firstName: newFirstName, lastName: newLastName }); // Update context if successful
+        console.log("User name updated:", user?.sub);
+      } catch (error) {
+        alert("Update Failed", error.message);
+      }
+
     };
   
     const editUsername = (newUsername) => {
@@ -22,16 +28,16 @@ const useSettingsActions = () => {
     };
   
     const changePassword = (newPassword) => {
-      Alert.alert("Change Password", "This is where you'd change the password.");
+      alert("Change Password", "This is where you'd change the password.");
     };
   
     const deleteAccount = () => {
       console.log("Delete Account button clicked", user?.sub);
-      Alert.alert("Delete Account", "Account deleted.");
+      alert("Delete Account", "Account deleted.");
     };
   
     const editUserAvatar = (newImage) => {
-      Alert.alert("Edit Avatar", "This is where you'd change the avatar.");
+      alert("Edit Avatar", "This is where you'd change the avatar.");
     };
   
     return {

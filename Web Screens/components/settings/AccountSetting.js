@@ -5,6 +5,11 @@ import useSettingsActions from './SettingsActions';
 const AccountSettings = ({ user }) => {
   const { editName, editUsername, editEmail, editUserAvatar, changePassword, deleteAccount } = useSettingsActions();
 
+  if (!user) {
+    // Render a loading message or placeholder if user data is not available yet
+    return <Text>Loading user data...</Text>;
+  }
+
   const [isEditingName, setIsEditingName] = useState(false);
   const [firstNameInput, setFirstNameInput] = useState(user.firstName);
   const [lastNameInput, setLastNameInput] = useState(user.lastName);
