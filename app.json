@@ -22,11 +22,6 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "apiKey": "AIzaSyDqZs2GcqLEwKD1rganE4GHJ5HHY85hRd0",
-      "clientId": "132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com",
-      "clientSecret": "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"
     }
   }
 }
