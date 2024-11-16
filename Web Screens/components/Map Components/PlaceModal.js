@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Text, Button } from 'native-base';
 import { fetchPhotoUrl } from '../../../APICalls';
-import { createCheckIn, addFavoriteTrail, createReview } from '../../../APICalls';
+import { createCheckIn, addFavoriteTrail, createReview, createTrail } from '../../../APICalls';
 
 const PlaceModal = ({ isOpen, onClose, place }) => {
     if (!place) return null; // Return null if no place is selected
@@ -11,7 +11,7 @@ const PlaceModal = ({ isOpen, onClose, place }) => {
     const [favoriteTrails, setFavoriteTrails] = useState([]);
     
 
-    console.log(place.photos[0].html_attributions[0]);
+    // console.log(place.photos[0].html_attributions[0]);
     console.log(place);
 
     // const photoUrl =
@@ -29,8 +29,8 @@ const PlaceModal = ({ isOpen, onClose, place }) => {
             trailId: "456"
         };
         try {
-            const createdCheckIn = await createCheckIn(newCheckIn);
-            setCheckIns([...checkIns, createdCheckIn]);
+            // const createdCheckIn = await createCheckIn(newCheckIn);
+            // setCheckIns([...checkIns, createdCheckIn]);
         } catch (error) {
             console.error(error);
         }
@@ -45,8 +45,8 @@ const PlaceModal = ({ isOpen, onClose, place }) => {
         const trailId = "456"
         
         try {
-            addFavoriteTrail(userId, trailId);
-            console.log("Favorte added");
+            // addFavoriteTrail(userId, trailId);
+            // console.log("Favorte added");
         } catch (error) {
             console.error(error);
         }
@@ -56,12 +56,15 @@ const PlaceModal = ({ isOpen, onClose, place }) => {
         console.log(`Navigating to review screen for ${place.name}`);
         // Implement review functionality here
         const newCheckIn = {
-            userId: "123",
-            trailId: "456",
+            placesId: place.place_id,
+            name: place.name,
+            location: place.vicinity,
+            description: "Nice Place",
             rating: 2.1,
-            comment: "Will is a bitch"
         };
-        createReview(newCheckIn);
+
+        createTrail(newCheckIn);
+        // createReview(newCheckIn);
     };
 
 

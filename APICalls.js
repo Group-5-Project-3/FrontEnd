@@ -232,17 +232,17 @@ export const addFavoriteTrail = async (userId, trailId) => {
         const token = await AsyncStorage.getItem('@auth_token');
 
         const response = await axios.post("https://cst438project3-6ec60cdacb89.herokuapp.com/api/favorites",
-            null, 
+            null,
             {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`, // Add the token as a bearer token
-            },
-            params: { // Pass query parameters here
-                userId,
-                trailId,
-            },
-        });
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`, // Add the token as a bearer token
+                },
+                params: { // Pass query parameters here
+                    userId,
+                    trailId,
+                },
+            });
         return response.data;
     } catch (error) {
         console.error("Error adding favorite trail:", error);
@@ -282,7 +282,7 @@ export const getTrailReviews = async (trailId) => {
     try {
         const token = await AsyncStorage.getItem('@auth_token');
 
-        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/trail/${trailId}`, { 
+        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/trail/${trailId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
@@ -300,12 +300,12 @@ export const getUserReviews = async (userId) => {
     try {
         const token = await AsyncStorage.getItem('@auth_token');
 
-        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/user/${userId}`, { 
+        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/user/${userId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
             },
-         });
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching user reviews:", error.response?.data || error.message);
@@ -318,12 +318,12 @@ export const createReview = async (review) => {
     try {
         const token = await AsyncStorage.getItem('@auth_token');
 
-        const response = await axios.post("https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews", review, { 
+        const response = await axios.post("https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews", review, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
             },
-         });
+        });
         return response.data;
     } catch (error) {
         console.error("Error creating review:", error.response?.data || error.message);
@@ -336,12 +336,12 @@ export const updateReview = async (id, review) => {
     try {
         const token = await AsyncStorage.getItem('@auth_token');
 
-        const response = await axios.put(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/${id}`, review, { 
+        const response = await axios.put(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/${id}`, review, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
             },
-         });
+        });
         return response.data;
     } catch (error) {
         console.error("Error updating review:", error.response?.data || error.message);
@@ -353,13 +353,13 @@ export const updateReview = async (id, review) => {
 export const deleteReview = async (id) => {
     try {
         const token = await AsyncStorage.getItem('@auth_token');
-        
-        const response = await axios.delete(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/${id}`, { 
+
+        const response = await axios.delete(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/${id}`, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
             },
-         });
+        });
         if (response.status === 204) {
             return true; // Successfully deleted
         }
@@ -369,6 +369,99 @@ export const deleteReview = async (id) => {
         } else {
             console.error("Error deleting review:", error.response?.data || error.message);
         }
+        throw error;
+    }
+};
+
+// https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails
+
+
+// Get all trails
+export const getAllTrails = async () => {
+    try {
+        const token = await AsyncStorage.getItem('@auth_token');
+
+        const response = await axios.get("https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails", {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add the token as a bearer token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching trails:', error);
+        throw error;
+    }
+};
+
+// Get a trail by ID
+export const getTrailById = async (id) => {
+    try {
+        const token = await AsyncStorage.getItem('@auth_token');
+
+        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add the token as a bearer token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching trail with ID ${id}:`, error);
+        throw error;
+    }
+};
+
+// Create a new trail
+export const createTrail = async (trail) => {
+    try {
+        const token = await AsyncStorage.getItem('@auth_token');
+
+        const response = await axios.post("https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails", trail, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add the token as a bearer token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error creating trail:', error);
+        throw error;
+    }
+};
+
+// Update a trail by ID
+export const updateTrail = async (id, trail) => {
+    try {
+        const token = await AsyncStorage.getItem('@auth_token');
+
+        const response = await axios.put(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/${id}`, trail, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add the token as a bearer token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating trail with ID ${id}:`, error);
+        throw error;
+    }
+};
+
+// Delete a trail by ID
+export const deleteTrail = async (id) => {
+    try {
+        const token = await AsyncStorage.getItem('@auth_token');
+        
+        const response = await axios.delete(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add the token as a bearer token
+            },
+        });
+        return response.status === 204; // No Content status
+    } catch (error) {
+        console.error(`Error deleting trail with ID ${id}:`, error);
         throw error;
     }
 };
