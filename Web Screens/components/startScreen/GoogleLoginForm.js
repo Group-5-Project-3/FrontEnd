@@ -2,11 +2,17 @@ import React, { useState } from 'react';
 import { Button, View, Text } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import Constants from 'expo-constants';
+
+
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function GoogleLoginForm() {
   const [userInfo, setUserInfo] = useState(null);
+  const apiKey = Constants.expoConfig?.extra?.apiKey;
+  const client_id = Constants.expoConfig?.extra?.clientId;
+  const client_secret = Constants.expoConfig?.extra?.clientSecret;
 
   // Call the useAutoDiscovery hook inside the component
   const DISCOVERY = AuthSession.useAutoDiscovery('https://accounts.google.com');
@@ -14,7 +20,7 @@ export default function GoogleLoginForm() {
   // Create the auth request
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      // clientId: '132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com', // Replace with your Client ID
+      clientId: client_id, // Replace with your Client ID
       redirectUri: AuthSession.makeRedirectUri({ useProxy: false }), // Ensure it matches your Google Console settings
       scopes: ['openid', 'profile', 'email'],
       responseType: AuthSession.ResponseType.Code,
@@ -35,8 +41,9 @@ export default function GoogleLoginForm() {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
-              // client_id: '132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com', // Replace with your Client ID
-              // client_secret: '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', // Add your Client Secret
+              // 132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com
+              client_id: client_id, // Replace with your Client ID
+              client_secret: client_secret, // Add your Client Secret
               code: response.params.code,
               redirect_uri: AuthSession.makeRedirectUri({ useProxy: false }),
               grant_type: 'authorization_code',
