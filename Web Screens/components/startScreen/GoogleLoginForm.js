@@ -14,7 +14,7 @@ export default function GoogleLoginForm() {
   // Create the auth request
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: '132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com', // Replace with your Client ID
+      // clientId: '132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com', // Replace with your Client ID
       redirectUri: AuthSession.makeRedirectUri({ useProxy: false }), // Ensure it matches your Google Console settings
       scopes: ['openid', 'profile', 'email'],
       responseType: AuthSession.ResponseType.Code,
@@ -35,8 +35,8 @@ export default function GoogleLoginForm() {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
-              client_id: '132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com', // Replace with your Client ID
-              client_secret: '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', // Add your Client Secret
+              // client_id: '132989833762-n70usa2m3iee4vcvc7kopfq9tmumffk4.apps.googleusercontent.com', // Replace with your Client ID
+              // client_secret: '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', // Add your Client Secret
               code: response.params.code,
               redirect_uri: AuthSession.makeRedirectUri({ useProxy: false }),
               grant_type: 'authorization_code',
