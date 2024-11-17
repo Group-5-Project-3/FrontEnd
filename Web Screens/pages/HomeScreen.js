@@ -21,7 +21,7 @@ const HomeScreen = ({ navigation }) => {
     <HStack flex={1}>
       <Box flex={1} bg="primary.300" alignItems="center" justifyContent="center">
       <Image
-          source={{ uri: '../../assets/Forest.webp' }}
+          source={{ uri: '../../assets/Forest.png' }}
           alt="Background"
           style={[styles.backgroundImage, { height: windowHeight }]}
           resizeMode="cover"

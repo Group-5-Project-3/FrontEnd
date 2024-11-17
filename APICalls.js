@@ -412,6 +412,25 @@ export const getTrailById = async (id) => {
     }
 };
 
+// Get a trail by place if
+export const getTrailByPlacesId = async (placesId) => {
+    try {
+        const token = await AsyncStorage.getItem('@auth_token');
+
+        const response = await axios.get(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/places/${placesId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`, // Add the token as a bearer token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching trail with ID ${placesId}:`, error);
+        throw error;
+    }
+};
+
+
 // Create a new trail
 export const createTrail = async (trail) => {
     try {
