@@ -65,7 +65,7 @@ const MapComponent = () => {
   }, []);
 
   const fetchNearbyPlaces = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBEtitoZ3QZzqzQF-YkbSXYxgzcoKEkFI4"; // Replace with your actual API key
+    const apiKey = GOOGLE_API_KEY; // Replace with your actual API key
     const radius = 5000;
 
     console.log("in fetchNearbyPlaces");
@@ -77,7 +77,7 @@ const MapComponent = () => {
           params: {
             location: `${latitude},${longitude}`,
             radius,
-            type: "park", // Type can be "park" or other categories like "trail"
+            type: "park", 
             key: apiKey,
           },
         }
