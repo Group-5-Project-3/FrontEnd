@@ -42,6 +42,26 @@ function NavBar() {
             variant="ghost"
             colorScheme="light"
             size={buttonSize}
+            onPress={() => navigation.navigate('Favorite')} // Ensure this matches the 'Trails' screen in the navigator
+            _text={{ color: "white" }} // Set button text color to white
+            _hover={{ bg: "#008001" }} // Change background color on hover
+          >
+            Favorite
+          </Button>
+          <Button
+            variant="ghost"
+            colorScheme="light"
+            size={buttonSize}
+            onPress={() => navigation.navigate('Milestone')} // Ensure this matches the 'Trails' screen in the navigator
+            _text={{ color: "white" }} // Set button text color to white
+            _hover={{ bg: "#008001" }} // Change background color on hover
+          >
+            Milestone
+          </Button>
+          <Button
+            variant="ghost"
+            colorScheme="light"
+            size={buttonSize}
             onPress={() => navigation.navigate('Settings')}
             _text={{ color: "white" }} // Set button text color to white
             _hover={{ bg: "#008001" }} // Change background color on hover

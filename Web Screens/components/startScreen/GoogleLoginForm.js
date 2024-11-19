@@ -1,18 +1,18 @@
-import React from 'react';
-import { VStack, Text, Button } from 'native-base';
+import React, { useState } from 'react';
+import { Button, View, Text } from 'react-native';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+import Constants from 'expo-constants';
 
-export default function GoogleLoginForm({ setSelectedForm }) {
+
+
+
+export default function GoogleLoginForm() {
+  const [userInfo, setUserInfo] = useState(null);
+
   return (
-    <VStack space={4} width="80%">
-      <Text color="white" textAlign="center" mb={2}>
-        Google Login is in progress...
-      </Text>
-      <Button bg="#008001" _pressed={{ bg: '#006400' }} onPress={() => alert('Google Login')}>
-        Continue with Google
-      </Button>
-      <Button variant="link" onPress={() => setSelectedForm(null)}>
-        Back
-      </Button>
-    </VStack>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      Hello
+    </View>
   );
 }

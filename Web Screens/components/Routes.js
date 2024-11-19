@@ -4,6 +4,8 @@ import WebScreen from '../pages/Web';
 import Trails from '../pages/Trails';
 import HomeScreen from '../pages/HomeScreen';
 import Settings from '../pages/Settings';
+import Favorite from '../pages/Favorite';
+import Milestone from '../pages/Milestone';
 import { AuthContext } from '../AuthContext';
 import { Spinner, Box } from 'native-base';
 import Test from '../pages/Test';
@@ -40,6 +42,16 @@ const Routes = () => {
           <Stack.Screen
             name="Settings"
             component={Settings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Favorite"
+            component={Favorite}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Milestone"
+            component={Milestone}
             options={{ headerShown: false }}
           />
         </>

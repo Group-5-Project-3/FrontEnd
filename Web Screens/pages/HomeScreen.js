@@ -7,6 +7,9 @@ import { Dimensions, StyleSheet } from 'react-native';
 import LoginForm from '../components/startScreen/LoginForm';
 import CreateAccountForm from '../components/startScreen/CreateAccountForm';
 import GoogleLoginForm from '../components/startScreen/GoogleLoginForm';
+import * as AuthSession from 'expo-auth-session';
+
+
 
 const HomeScreen = ({ navigation }) => {
   const [selectedForm, setSelectedForm] = useState(null);
@@ -18,7 +21,7 @@ const HomeScreen = ({ navigation }) => {
     <HStack flex={1}>
       <Box flex={1} bg="primary.300" alignItems="center" justifyContent="center">
       <Image
-          source={{ uri: '../../assets/Forest.webp' }}
+          source={{ uri: '../../assets/Forest.png' }}
           alt="Background"
           style={[styles.backgroundImage, { height: windowHeight }]}
           resizeMode="cover"

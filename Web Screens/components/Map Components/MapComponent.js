@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
-import { Modal, Text, Button, Box } from 'native-base';
+import { Modal, Text, Button, Box, Center, Spinner } from 'native-base';
 import { Asset } from 'expo-asset';
 import TreeLogo from '../../../assets/TreeLogo.png';
 import PlaceModal from './PlaceModal';
@@ -30,21 +30,36 @@ function MapComponent({ places }) {
 
 
     useEffect(() => {
+        let watchId;
+
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
+            watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     setCurrentLocation({
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
                     });
                 },
-                () => {
+                (error) => {
+                    console.error('Error watching position:', error);
                     alert('Geolocation permission denied or unavailable');
+                },
+                {
+                    enableHighAccuracy: true, // Request high accuracy
+                    maximumAge: 0, // No cached position
+                    timeout: 5000, // Timeout after 5 seconds
                 }
             );
         } else {
             alert('Geolocation is not supported by this browser.');
         }
+
+        // Cleanup watcher on component unmount
+        return () => {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+        };
     }, []);
 
     const resolvedIcon = Asset.fromModule(TreeLogo).uri;
@@ -99,10 +114,13 @@ function MapComponent({ places }) {
                         isOpen={!!selectedPlace}
                         onClose={() => setSelectedPlace(null)}
                         place={selectedPlace}
+                        currentLocation={currentLocation} // Pass user's current location
                     />
                 </GoogleMap>
             ) : (
-                <p>Loading...</p> // Show a loading message while API loads
+                <Center flex={1}>
+                    <Spinner size="lg" />
+                </Center>
             )}
         </LoadScript>
     );
