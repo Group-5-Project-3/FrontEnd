@@ -1,25 +1,21 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import WebApp from './WebApp';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { LoadScript } from '@react-google-maps/api';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+
+
+const App = () => (
+  <AuthProvider>
+    <Router>
+      {/* <LoadScript googleMapsApiKey="AIzaSyDqZs2GcqLEwKD1rganE4GHJ5HHY85hRd0"> */}
+        <WebApp />
+      {/* </LoadScript> */}
+    </Router>
+  </AuthProvider>
+);
 
 export default App;
