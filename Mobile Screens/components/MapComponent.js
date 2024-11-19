@@ -333,6 +333,18 @@ const MapComponent = () => {
     setModalVisible(true);
   };
 
+  const checkIn = () => {
+    alert("check in still being implemented");
+  };
+
+  const favorite = () => {
+    alert("favorite in still being implemented");
+  };
+
+  const review = () => {
+    alert("review in still being implemented");
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -384,8 +396,17 @@ const MapComponent = () => {
           <Text style={styles.modalTitleText}>ID: {modalID}</Text>
           <Text style={styles.modalTitleText}>Lat: {modalLat}</Text>
           <Text style={styles.modalTitleText}>Long: {modalLong}</Text>
+          <Pressable onPress={checkIn}>
+            <Text style={styles.modalBackText}>Check In</Text>
+          </Pressable>
+          <Pressable onPress={favorite}>
+            <Text style={styles.modalBackText}>Favorite</Text>
+          </Pressable>
+          <Pressable onPress={review}>
+            <Text style={styles.modalBackText}>Review</Text>
+          </Pressable>
           <Pressable onPress={() => setModalVisible(false)}>
-            <Text style={styles.modalBackText}>Cancel</Text>
+            <Text style={styles.modalBackText}>Close</Text>
           </Pressable>
         </SafeAreaView>
       </Modal>
@@ -440,7 +461,7 @@ const styles = StyleSheet.create({
   modalTitleText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: scaledFontSize(24),
+    fontSize: scaledFontSize(20),
   },
   modalBackText: {
     color: "white",
