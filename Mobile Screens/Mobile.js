@@ -5,7 +5,7 @@ import MapComponent from "./components/MapComponent";
 export default function MobileScreen() {
   return (
     <View>
-      <Text>testing...</Text>
+      {/* <Text>testing...</Text> */}
       <MapComponent></MapComponent>
     </View>
   );

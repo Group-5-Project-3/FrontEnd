@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
-import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  Image,
+  Pressable,
+  Modal,
+  SafeAreaView,
+} from "react-native";
 import * as Location from "expo-location";
 import axios from "axios";
 import { Asset } from "expo-asset";
 import TreeLogo from "../../assets/TreeLogo.png";
+import { TouchableOpacity } from "react-native";
 
 const MapComponent = () => {
   const [location, setLocation] = useState({
@@ -16,6 +26,13 @@ const MapComponent = () => {
 
   const [places, setPlaces] = useState([]);
   const resolvedIcon = Asset.fromModule(TreeLogo).uri;
+
+  const [modalID, setModalID] = useState("");
+  const [modalName, setModalName] = useState("");
+  const [modalLong, setModalLong] = useState(0);
+  const [modalLat, setModalLat] = useState(0);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -303,6 +320,19 @@ const MapComponent = () => {
     },
   ];
 
+  const parkPressed = (name, id, lat, long) => {
+    // alert(
+    //   "park pressed, id: " + id,
+    //   +" name: " + name + " lat & long: " + lat,
+    //   +long
+    // );
+    setModalID(id);
+    setModalName(name);
+    setModalLat(lat);
+    setModalLong(long);
+    setModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       <MapView
@@ -310,6 +340,7 @@ const MapComponent = () => {
         region={location}
         showsUserLocation={true}
         customMapStyle={customMapStyle}
+        tracksViewChanges={false}
       >
         {places.map((place) => (
           <Marker
@@ -321,17 +352,43 @@ const MapComponent = () => {
             // title={place.name} // Display name of the place
             // description={`Location: (${place.latitude}, ${place.longitude})`}
             // image={TreeLogo} // Custom icon for the marker
+            onPress={() =>
+              parkPressed(
+                place.name,
+                place.place_id,
+                place.geometry.location.lat,
+                place.geometry.location.lng
+              )
+            }
           >
             <View style={styles.markerContainer}>
               <Image source={TreeLogo} style={styles.markerImage} />
               <Text style={styles.markerLabel}>{place.name}</Text>
             </View>
+
             {/* <View style={styles.customMarker}>
               <Text style={styles.markerText}>{place.name}</Text>
             </View> */}
           </Marker>
         ))}
       </MapView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <SafeAreaView style={styles.modalBackground}>
+          <Text style={styles.modalTitleText}>Name: {modalName}</Text>
+          <Text style={styles.modalTitleText}>ID: {modalID}</Text>
+          <Text style={styles.modalTitleText}>Lat: {modalLat}</Text>
+          <Text style={styles.modalTitleText}>Long: {modalLong}</Text>
+          <Pressable onPress={() => setModalVisible(false)}>
+            <Text style={styles.modalBackText}>Cancel</Text>
+          </Pressable>
+        </SafeAreaView>
+      </Modal>
     </View>
   );
 };
@@ -352,18 +409,43 @@ const styles = StyleSheet.create({
   markerContainer: {
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "brown",
+    margin: 0,
   },
   markerImage: {
     width: width / 5, // Adjust width of the image
     height: height / 5, // Adjust height of the image
     resizeMode: "contain", // Ensures the image maintains its aspect ratio
+    margin: 0,
+    padding: 0,
   },
   markerLabel: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "black",
+    color: "white",
     textAlign: "center",
-    marginTop: 5, // Adds some space between the image and label
+    margin: 0, // Adds some space between the image and label
+    padding: 0,
+  },
+  modalBackground: {
+    alignItems: "center",
+    alignContent: "center",
+    padding: width * 0.05,
+    flex: 1,
+    backgroundColor: "black",
+    borderTopStartRadius: scale * 20,
+    borderTopEndRadius: scale * 20,
+    // marginTop: width * 0.5,
+  },
+  modalTitleText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: scaledFontSize(24),
+  },
+  modalBackText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: scaledFontSize(15),
   },
 });
 
