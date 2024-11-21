@@ -5,15 +5,21 @@ export default function Trails() {
   const [places, setPlaces] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const latitude =	34.0069; // Center of California
+  const longitude = 	-119.7785; // Center of California
+  const radius = 50000; // 500 km radius to cover the state
+  const type = 'park';
+  const keyword = 'national';
 
   useEffect(() => {
     const fetchUserLocationAndPlaces = async () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const { latitude, longitude } = position.coords;
+          // const { latitude, longitude } = position.coords;
 
           try {
-            const data = await getNearbyParks(latitude, longitude);
+            const data = await getNearbyParks(latitude, longitude, radius, type, keyword);
+            console.log(data);
             setPlaces(data.results || []);
           } catch (err) {
             setError(err.message);

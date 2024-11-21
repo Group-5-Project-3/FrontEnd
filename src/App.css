@@ -1,19 +1,24 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure full height for Flexbox */
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+}
+
 .navbar {
+  height: 60px;
   position: sticky;
   top: 0;
-  z-index: 1000; /* Ensures it stays on top of other content */
-  height: 60px; /* Define a fixed height for consistency */
+  z-index: 1000;
+  box-sizing: border-box;
 }
 
 .map-container {
-  height: calc(100vh - 60px); /* Subtract the navbar height from the viewport height */
-  overflow: hidden; /* Prevent scrollbars */
-}
-
-html,
-body,
-#root {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+  flex: 1;
+  overflow: hidden;
 }
