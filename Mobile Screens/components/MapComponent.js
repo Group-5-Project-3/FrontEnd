@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import MapView, { Marker } from "react-native-maps";
 import {
   StyleSheet,
@@ -15,8 +15,14 @@ import axios from "axios";
 import { Asset } from "expo-asset";
 import TreeLogo from "../../assets/TreeLogo.png";
 import { TouchableOpacity } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthContext } from "../AuthContext";
+import { decodeJWT } from "./utils/utils";
+import { addFavoriteTrail, findUserByUserId } from "../../APICalls";
 
 const MapComponent = () => {
+  const [userName, setUserName] = useState(null);
+  const [userID, setUserID] = useState(null);
   const [location, setLocation] = useState({
     latitude: 40.7128, // default to NYC
     longitude: -74.006,
@@ -35,6 +41,38 @@ const MapComponent = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
+    // const { user, loading, logout } = useContext(AuthContext);
+    const initialize = async () => {
+      try {
+        // Get the token from AsyncStorage
+        const token = await AsyncStorage.getItem("@auth_token");
+        if (!token) {
+          console.log("No token found in AsyncStorage");
+          return;
+        } else {
+          console.log("token was found: ", token);
+          const decodedToken = decodeJWT(token);
+          console.log("decoded token: ", decodedToken);
+          const userInfo = await findUserByUserId(decodedToken.sub);
+          console.log("user info: ", userInfo);
+          setUserID(userInfo.id);
+          setUserName(userInfo.username);
+          console.log("set user name and id to ", userName + " " + userID);
+        }
+
+        // const response = await axios.get("https://your-api.com/user", {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // });
+
+        //setUser(response.data); // Save user details in state
+        //console.log("User fetched successfully:", response.data);
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
     const getPermissions = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -62,10 +100,12 @@ const MapComponent = () => {
       );
     };
     getPermissions();
+    initialize();
+    //test
   }, []);
 
   const fetchNearbyPlaces = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBEtitoZ3QZzqzQF-YkbSXYxgzcoKEkFI4"; // Replace with your actual API key
+    const apiKey = "AIzaSyBCqXWNXUbFaITYSCy48mDKn8NFwpBtB4E"; // Replace with your actual API key
     const radius = 5000;
 
     console.log("in fetchNearbyPlaces");
@@ -94,6 +134,10 @@ const MapComponent = () => {
       //console.log("googlePlaces :", googlePlaces);
 
       console.log("googlePlaces at [0]:", googlePlaces[0]);
+      console.log(
+        "googlePlaces iMAGE ARYRRAY at [0]:",
+        googlePlaces[0].photos[0].html_attributions[0]
+      );
 
       // Optionally set the places state
       setPlaces(googlePlaces);
@@ -320,7 +364,7 @@ const MapComponent = () => {
     },
   ];
 
-  const parkPressed = (name, id, lat, long) => {
+  const parkPressed = (name, id, lat, long, image) => {
     // alert(
     //   "park pressed, id: " + id,
     //   +" name: " + name + " lat & long: " + lat,
@@ -337,8 +381,14 @@ const MapComponent = () => {
     alert("check in still being implemented");
   };
 
-  const favorite = () => {
+  const favorite = async (name, id) => {
     alert("favorite in still being implemented");
+    console.log("place name: ", name);
+    console.log("place id: ", id);
+    console.log("user id: ", userID);
+
+    const favTrailData = await addFavoriteTrail(userID, id);
+    console.log("favorited trail data: ", favTrailData);
   };
 
   const review = () => {
@@ -363,7 +413,7 @@ const MapComponent = () => {
             }}
             // title={place.name} // Display name of the place
             // description={`Location: (${place.latitude}, ${place.longitude})`}
-            // image={TreeLogo} // Custom icon for the marker
+            // image={place.icon} // Custom icon for the marker
             onPress={() =>
               parkPressed(
                 place.name,
@@ -392,21 +442,26 @@ const MapComponent = () => {
         onRequestClose={() => setModalVisible(false)}
       >
         <SafeAreaView style={styles.modalBackground}>
-          <Text style={styles.modalTitleText}>Name: {modalName}</Text>
-          <Text style={styles.modalTitleText}>ID: {modalID}</Text>
-          <Text style={styles.modalTitleText}>Lat: {modalLat}</Text>
-          <Text style={styles.modalTitleText}>Long: {modalLong}</Text>
-          <Pressable onPress={checkIn}>
-            <Text style={styles.modalBackText}>Check In</Text>
+          <View style={styles.modalTopContainer}>
+            <Pressable onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalBackText}>Close</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.modalTitleText}>{modalName}</Text>
+          {/* <Text style={styles.modalTitleText}>ID: {modalID}</Text> */}
+          {/* <Text style={styles.modalTitleText}>Lat: {modalLat}</Text> */}
+          {/* <Text style={styles.modalTitleText}>Long: {modalLong}</Text> */}
+          <Pressable onPress={checkIn} style={styles.modalActionButton}>
+            <Text style={styles.bottomViewText}>Check In</Text>
           </Pressable>
-          <Pressable onPress={favorite}>
-            <Text style={styles.modalBackText}>Favorite</Text>
+          <Pressable
+            onPress={() => favorite(modalName, modalID)}
+            style={styles.modalActionButton}
+          >
+            <Text style={styles.bottomViewText}>Favorite</Text>
           </Pressable>
-          <Pressable onPress={review}>
-            <Text style={styles.modalBackText}>Review</Text>
-          </Pressable>
-          <Pressable onPress={() => setModalVisible(false)}>
-            <Text style={styles.modalBackText}>Close</Text>
+          <Pressable onPress={review} style={styles.modalActionButton}>
+            <Text style={styles.bottomViewText}>Review</Text>
           </Pressable>
         </SafeAreaView>
       </Modal>
@@ -461,12 +516,35 @@ const styles = StyleSheet.create({
   modalTitleText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: scaledFontSize(20),
+    fontSize: scaledFontSize(28),
+    margin: "5%",
   },
   modalBackText: {
     color: "white",
     fontWeight: "bold",
     fontSize: scaledFontSize(15),
+  },
+  modalTopContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: width * 0.05,
+    marginTop: width * 0.08,
+  },
+  modalActionButton: {
+    backgroundColor: "#0fa726",
+    width: "50%",
+    height: "7%",
+    borderRadius: scale * 30,
+    alignItems: "center",
+    justifyContent: "center",
+    margin: height / 100, // Vertical spacing
+  },
+  bottomViewText: {
+    color: "white",
+    fontSize: scaledFontSize(20),
+    fontWeight: "bold",
   },
 });
 
