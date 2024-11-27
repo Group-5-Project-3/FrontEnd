@@ -19,6 +19,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../AuthContext";
 import { decodeJWT } from "./utils/utils";
 import { addFavoriteTrail, findUserByUserId } from "../../APICalls";
+import { TextInput } from "react-native";
+import StarRating from "react-native-star-rating-widget";
 
 const MapComponent = () => {
   const [userName, setUserName] = useState(null);
@@ -39,6 +41,12 @@ const MapComponent = () => {
   const [modalLat, setModalLat] = useState(0);
 
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+
+  const [userReview, setUserReview] = useState("");
+
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
     // const { user, loading, logout } = useContext(AuthContext);
@@ -377,6 +385,25 @@ const MapComponent = () => {
     setModalVisible(true);
   };
 
+  const submitReview = () => {
+    console.log("in submit review");
+    console.log("user entered: ", userReview);
+
+    if (!userReview) {
+      alert("Please write a Review");
+      return;
+    }
+
+    if (rating === 0) {
+      alert("Please leave a Rating");
+      return;
+    }
+
+    console.log("user score: ", rating);
+
+    // make 'review' object and call POST review endpoint
+  };
+
   const checkIn = () => {
     alert("check in still being implemented");
   };
@@ -392,7 +419,15 @@ const MapComponent = () => {
   };
 
   const review = () => {
-    alert("review in still being implemented");
+    // alert("review in still being implemented");
+    setReviewModalVisible(true);
+    setModalVisible(false);
+  };
+
+  const closeReview = () => {
+    // alert("review in still being implemented");
+    setReviewModalVisible(false);
+    setModalVisible(true);
   };
 
   return (
@@ -448,6 +483,7 @@ const MapComponent = () => {
             </Pressable>
           </View>
           <Text style={styles.modalTitleText}>{modalName}</Text>
+          {/* <View style={styles.lineSeprator}></View> */}
           {/* <Text style={styles.modalTitleText}>ID: {modalID}</Text> */}
           {/* <Text style={styles.modalTitleText}>Lat: {modalLat}</Text> */}
           {/* <Text style={styles.modalTitleText}>Long: {modalLong}</Text> */}
@@ -462,6 +498,49 @@ const MapComponent = () => {
           </Pressable>
           <Pressable onPress={review} style={styles.modalActionButton}>
             <Text style={styles.bottomViewText}>Review</Text>
+          </Pressable>
+
+          <View style={styles.lineSeprator}></View>
+          <Text style={styles.reviewsText}>Reviews</Text>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={reviewModalVisible}
+        onRequestClose={() => setReviewModalVisible(false)}
+      >
+        <SafeAreaView style={styles.modalBackground}>
+          <View style={styles.modalTopContainer}>
+            <Pressable onPress={() => closeReview(false)}>
+              <Text style={styles.modalBackText}>Close</Text>
+            </Pressable>
+          </View>
+
+          <Text style={styles.reviewsText}>Reviewing for...</Text>
+          <Text style={styles.modalTitleText}>{modalName}</Text>
+
+          <SafeAreaView style={styles.inputContainer}>
+            <TextInput
+              placeholder="Tell everyone what you thought!"
+              placeholderTextColor="#bfbfbf"
+              style={styles.inputText}
+              multiline={true} // Enables multi-line text input
+              autoFocus={true}
+              // numberOfLines={4}
+              value={userReview}
+              onChangeText={setUserReview}
+            />
+          </SafeAreaView>
+
+          <StarRating rating={rating} onChange={setRating} />
+
+          <Pressable
+            style={styles.modalActionButton}
+            onPress={() => submitReview()}
+          >
+            <Text style={styles.bottomViewText}>Submit</Text>
           </Pressable>
         </SafeAreaView>
       </Modal>
@@ -511,13 +590,16 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderTopStartRadius: scale * 20,
     borderTopEndRadius: scale * 20,
-    // marginTop: width * 0.5,
+    marginTop: "15%",
   },
   modalTitleText: {
     color: "white",
     fontWeight: "bold",
     fontSize: scaledFontSize(28),
     margin: "5%",
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
   },
   modalBackText: {
     color: "white",
@@ -545,6 +627,34 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: scaledFontSize(20),
     fontWeight: "bold",
+  },
+  lineSeprator: {
+    height: 3,
+    backgroundColor: "#505050",
+    marginVertical: 10,
+    width: "80%",
+  },
+  reviewsText: {
+    color: "white",
+    fontSize: scaledFontSize(15),
+    fontWeight: "ultralight",
+  },
+  inputContainer: {
+    marginTop: height * 0.01,
+    width: 300,
+    backgroundColor: "#404040",
+    borderRadius: 10,
+    padding: width * 0.03,
+    marginVertical: 10,
+    //alignItems: "center",
+    // justifyContent: "center",
+    textAlign: "center",
+    height: "50%",
+    paddingVertical: "5%",
+    paddingHorizontal: "5%",
+  },
+  inputText: {
+    color: "white",
   },
 });
 
