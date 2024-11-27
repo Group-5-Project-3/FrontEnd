@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../AuthContext';
 // import { updateUser as updatedUserAPI } from '../'
-import { updateUser as updatedUserAPI } from '../APICalls/UserController';
+import { updateUser as updatedUserAPI, uploadProfilePicture } from '../APICalls/UserController';
 
 const useSettingsActions = () => {
   const { user } = useContext(AuthContext);
@@ -41,7 +41,8 @@ const useSettingsActions = () => {
     alert('Delete Account functionality goes here.');
   };
 
-  const editUserAvatar = () => {
+  const editUserAvatar = async (userId, file) => {
+    await uploadProfilePicture(userId, file);
     alert('Edit Avatar functionality goes here.');
   };
 

@@ -13,9 +13,8 @@ export const login = async (username, password) => {
         });
         // Save the token to localStorage
         const token = response.data.token;
-        console.log("Token from login function: " + token + '\n');
         if (token) {
-            localStorage.setItem('authToken', token);
+            localStorage.setItem('auth_token', token);
         }
         return token;
     } catch (error) {
@@ -32,7 +31,6 @@ export const register = async (userData) => {
                 'Content-Type': 'application/json'
             }
         });
-        console.log('User registered successfully:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error during registration:', error);
@@ -44,7 +42,7 @@ export const register = async (userData) => {
 export const findUserByUserId = async (id) => {
     try {
         // Retrieve the token from localStorage
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('auth_token');
         if (!token) {
             throw new Error('No token found. Please log in.');
         }
@@ -80,7 +78,7 @@ export const updateUser = async (id, { username, email, firstName, lastName, pas
     }
 
     try {
-        const token = localStorage.getItem('authToken'); // Retrieve token from localStorage
+        const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
 
         const response = await axios.put(
             `https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${id}`,
@@ -95,5 +93,36 @@ export const updateUser = async (id, { username, email, firstName, lastName, pas
         return response.data;
     } catch (error) {
         throw new Error(error.response?.data?.message || 'Failed to update user');
+    }
+};
+
+export const uploadProfilePicture = async (userId, file) => {
+    try {
+        // Create a FormData object to handle the file upload
+        const formData = new FormData();
+        formData.append('file', file); // Match backend's expectation
+
+        const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
+
+        console.log(token);
+
+        // Make the POST request
+        const response = await axios.post(
+            `https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${userId}/profile-picture`,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Set the content type
+                    Authorization: `Bearer ${token}`, // Add the token as a bearer token
+                },
+            }
+        );
+
+        // Log or return the response
+        console.log('Profile picture uploaded successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading profile picture:', error.response?.data || error.message);
+        throw error; // Re-throw error for handling in caller function
     }
 };

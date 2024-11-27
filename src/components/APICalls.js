@@ -6,7 +6,7 @@ export const getNearbyParks = async (latitude, longitude, radius = 5000, type = 
 
     try {
         // Retrieve the token from localStorage
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('auth_token');
 
         if (!token) {
             throw new Error('No token found');
@@ -33,3 +33,5 @@ export const fetchPhotoUrl = async (photoReference, apiKey) => {
     const url = `${baseUrl}?maxwidth=${maxwidth}&photoreference=${photoReference}&key=${apiKey}`;
     return url;
 };
+
+

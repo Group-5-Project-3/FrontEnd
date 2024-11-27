@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Form, Image, Modal, Row, Col } from 'react-bootstrap';
+import React, { useState, useRef } from 'react';
+import { Button, Form, Card, Image, Row, Col, Container } from 'react-bootstrap';
 import useSettingsActions from './SettingsActions';
 
 const AccountSettings = ({ user }) => {
@@ -14,6 +14,20 @@ const AccountSettings = ({ user }) => {
 
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [emailInput, setEmailInput] = useState(user?.email || '');
+
+  const fileInputRef = useRef();
+
+  const handleAvatarUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      editUserAvatar(user.id, file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
 
   const handleSaveName = () => {
     editName(firstNameInput, lastNameInput);
@@ -50,146 +64,211 @@ const AccountSettings = ({ user }) => {
     return <p>Loading user data...</p>;
   }
 
+
   return (
-    <div className="container my-4">
-      {/* User Avatar and Info */}
-      <Row className="align-items-center mb-4">
-        <Col md="auto">
-          <Image
-            src="https://example.com/avatar.jpg"
-            roundedCircle
-            width={100}
-            height={100}
-            alt="User Avatar"
-          />
-        </Col>
-        <Col>
-          <h4>
-            {user.firstName} {user.lastName}
-          </h4>
-          <p>@{user.username}</p>
-        </Col>
-        <Col md="auto">
-          <Button variant="primary" onClick={editUserAvatar}>
-            Edit User Image
-          </Button>
-        </Col>
-      </Row>
+    <Container
+      style={{
+        backgroundColor: '#1b4332', // Forest green background
+        minHeight: '100vh',
+        padding: '20px'
+      }}
+      fluid
+    >
+      {/* User Avatar Section */}
+      <Card
+        className="mb-4 shadow-sm"
+        style={{
+          backgroundColor: '#2d6a4f', // Darker green for cards
+          color: '#ffffff',
+          border: 'none',
+        }}
+      >
+        <Card.Body>
+          <Row className="align-items-center">
+            <Col md="auto">
+              <Image
+                src={user.profilePictureUrl}
+                roundedCircle
+                width={100}
+                height={100}
+                alt="User Avatar"
+              />
+            </Col>
+            <Col>
+              <h4 className="mb-1">
+                {user.firstName} {user.lastName}
+              </h4>
+              <p className="text-light">@{user.username}</p>
+            </Col>
+            <Col md="auto">
+              <Button
+                variant="light"
+                onClick={triggerFileInput}
+                style={{
+                  color: '#1b4332',
+                  backgroundColor: '#a8dadc',
+                }}
+              >
+                Edit Avatar
+              </Button>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+              />
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
 
       {/* Editable Fields */}
-      <Row className="mb-3">
-        <Col>
-          <h6>Full Name</h6>
-          {isEditingName ? (
-            <>
-              <Form.Control
-                type="text"
-                placeholder="First Name"
-                value={firstNameInput}
-                onChange={(e) => setFirstNameInput(e.target.value)}
-                className="mb-2"
-              />
-              <Form.Control
-                type="text"
-                placeholder="Last Name"
-                value={lastNameInput}
-                onChange={(e) => setLastNameInput(e.target.value)}
-              />
-              <div className="mt-2">
-                <Button variant="success" onClick={handleSaveName} className="me-2">
-                  Save
-                </Button>
-                <Button variant="secondary" onClick={handleCancelEditName}>
-                  Cancel
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div>
-              <p>{firstNameInput} {lastNameInput}</p>
-              <Button variant="secondary" onClick={() => setIsEditingName(true)}>
-                Edit
-              </Button>
-            </div>
-          )}
-        </Col>
-      </Row>
+      <Card
+        className="mb-4 shadow-sm"
+        style={{
+          backgroundColor: '#2d6a4f', // Matching card color
+          color: '#ffffff',
+          border: 'none',
+        }}
+      >
+        <Card.Body>
+          <EditableField
+            label="Full Name"
+            isEditing={isEditingName}
+            value={`${firstNameInput} ${lastNameInput}`}
+            onEdit={() => setIsEditingName(true)}
+            onCancel={handleCancelEditName}
+            onSave={handleSaveName}
+            fields={[
+              {
+                type: 'text',
+                placeholder: 'First Name',
+                value: firstNameInput,
+                onChange: setFirstNameInput,
+              },
+              {
+                type: 'text',
+                placeholder: 'Last Name',
+                value: lastNameInput,
+                onChange: setLastNameInput,
+              },
+            ]}
+          />
 
-      <Row className="mb-3">
-        <Col>
-          <h6>Username</h6>
-          {isEditingUsername ? (
-            <>
-              <Form.Control
-                type="text"
-                placeholder="Username"
-                value={usernameInput}
-                onChange={(e) => setUsernameInput(e.target.value)}
-              />
-              <div className="mt-2">
-                <Button variant="success" onClick={handleSaveUsername} className="me-2">
-                  Save
-                </Button>
-                <Button variant="secondary" onClick={handleCancelEditUsername}>
-                  Cancel
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div>
-              <p>{usernameInput}</p>
-              <Button variant="secondary" onClick={() => setIsEditingUsername(true)}>
-                Edit
-              </Button>
-            </div>
-          )}
-        </Col>
-      </Row>
+          <EditableField
+            label="Username"
+            isEditing={isEditingUsername}
+            value={usernameInput}
+            onEdit={() => setIsEditingUsername(true)}
+            onCancel={handleCancelEditUsername}
+            onSave={handleSaveUsername}
+            fields={[
+              {
+                type: 'text',
+                placeholder: 'Username',
+                value: usernameInput,
+                onChange: setUsernameInput,
+              },
+            ]}
+          />
 
-      <Row className="mb-3">
-        <Col>
-          <h6>Email</h6>
-          {isEditingEmail ? (
-            <>
-              <Form.Control
-                type="email"
-                placeholder="Email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-              />
-              <div className="mt-2">
-                <Button variant="success" onClick={handleSaveEmail} className="me-2">
-                  Save
-                </Button>
-                <Button variant="secondary" onClick={handleCancelEditEmail}>
-                  Cancel
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div>
-              <p>{emailInput}</p>
-              <Button variant="secondary" onClick={() => setIsEditingEmail(true)}>
-                Edit
-              </Button>
-            </div>
-          )}
-        </Col>
-      </Row>
+          <EditableField
+            label="Email"
+            isEditing={isEditingEmail}
+            value={emailInput}
+            onEdit={() => setIsEditingEmail(true)}
+            onCancel={handleCancelEditEmail}
+            onSave={handleSaveEmail}
+            fields={[
+              {
+                type: 'email',
+                placeholder: 'Email',
+                value: emailInput,
+                onChange: setEmailInput,
+              },
+            ]}
+          />
+        </Card.Body>
+      </Card>
 
       {/* Actions */}
-      <Row>
-        <Col>
-          <Button variant="warning" className="me-2" onClick={changePassword}>
-            Change Password
-          </Button>
-          <Button variant="danger" onClick={deleteAccount}>
-            Delete Account
-          </Button>
-        </Col>
-      </Row>
-    </div>
+      <Card
+        className="shadow-sm"
+        style={{
+          backgroundColor: '#2d6a4f', // Matching card color
+          color: '#ffffff',
+          border: 'none',
+        }}
+      >
+        <Card.Body>
+          <Row>
+            <Col md={6}>
+              <Button
+                variant="light"
+                className="w-100 mb-2"
+                onClick={changePassword}
+                style={{
+                  color: '#1b4332', // Forest green text
+                  backgroundColor: '#a8dadc', // Button color for contrast
+                }}
+              >
+                Change Password
+              </Button>
+            </Col>
+            <Col md={6}>
+              <Button
+                variant="danger"
+                className="w-100"
+                onClick={deleteAccount}
+                style={{
+                  backgroundColor: '#d00000', // Red for delete button
+                  color: '#ffffff',
+                }}
+              >
+                Delete Account
+              </Button>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 };
+
+const EditableField = ({ label, isEditing, value, onEdit, onCancel, onSave, fields }) => (
+  <div className="mb-4">
+    <h6 className="text-light">{label}</h6>
+    {isEditing ? (
+      <>
+        {fields.map((field, index) => (
+          <Form.Control
+            key={index}
+            type={field.type}
+            placeholder={field.placeholder}
+            value={field.value}
+            onChange={(e) => field.onChange(e.target.value)}
+            className="mb-2"
+          />
+        ))}
+        <div className="mt-2">
+          <Button variant="success" onClick={onSave} className="me-2">
+            Save
+          </Button>
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        </div>
+      </>
+    ) : (
+      <div>
+        <p>{value}</p>
+        <Button variant="secondary" onClick={onEdit}>
+          Edit
+        </Button>
+      </div>
+    )}
+  </div>
+);
 
 export default AccountSettings;

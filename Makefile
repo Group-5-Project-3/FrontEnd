@@ -12,15 +12,27 @@ help:
 	@echo "Makefile for managing Heroku Docker deployments"
 	@echo ""
 	@echo "Usage:"
+	@echo "  make login       Log in to Heroku"
+	@echo "  make container-login Log in to Heroku Container Registry"
 	@echo "  make build       Build the Docker image"
 	@echo "  make tag         Tag the Docker image for Heroku"
 	@echo "  make push        Push the Docker image to Heroku's container registry"
 	@echo "  make release     Release the Docker image to Heroku"
-	@echo "  make deploy      Full deployment: build, tag, push, and release"
+	@echo "  make deploy      Full deployment: login, container-login, build, tag, push, and release"
 	@echo "  make logs        View Heroku logs"
 	@echo "  make open        Open the app in the browser"
 	@echo "  make local       Run the app locally on port $(LOCAL_PORT)"
 	@echo ""
+
+# Log in to Heroku
+.PHONY: login
+login:
+	heroku login
+
+# Log in to Heroku Container Registry
+.PHONY: container-login
+container-login:
+	heroku container:login
 
 # Build the Docker image
 .PHONY: build
@@ -42,9 +54,9 @@ push:
 release:
 	heroku container:release $(HEROKU_PROCESS) --app $(APP_NAME)
 
-# Full deployment: build, tag, push, and release
+# Full deployment: login, container-login, build, tag, push, and release
 .PHONY: deploy
-deploy: build tag push release
+deploy: login container-login build tag push release
 
 # View Heroku logs
 .PHONY: logs

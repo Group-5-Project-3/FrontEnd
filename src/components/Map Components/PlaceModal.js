@@ -2,19 +2,17 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import StarRatings from 'react-star-ratings';
 import { createCheckIn } from '../APICalls/CheckInController';
-import { createTrail } from '../APICalls/TrailController';
-import { getTrailByPlacesId } from '../APICalls/TrailController';
 import { addFavoriteTrail } from '../APICalls/FavoriteController';
 import { calculateDistance, checkIfTrailExist } from '../utils';
 import { AuthContext } from '../../AuthContext';
+import { createReview } from '../APICalls/ReviewController';
+import ReviewModal from './ReviewModal';
+import { getImagesByTrailId } from '../APICalls/TrailImageController';
 
 const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [reviewText, setReviewText] = useState('');
-  const [overallRating, setOverallRating] = useState(0);
-  const [difficultyRating, setDifficultyRating] = useState(0);
   const [trailId, setTrailId] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [trailImage, setTrailImage] = useState("");
   const { user } = useContext(AuthContext);
 
   // Fetch trailId when modal opens
@@ -24,6 +22,13 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
         try {
           const trailInfo = await checkIfTrailExist(place.place_id, place);
           setTrailId(trailInfo.trailId);
+          const trailImages = await getImagesByTrailId(trailInfo.trailId);
+          if (trailImages == 0) {
+            setTrailImage("");
+          } else {
+            setTrailImage(trailImages[0].imageUrl);
+            console.log(trailImages[0].imageUrl);
+          }
         } catch (error) {
           console.error('Error fetching trail info:', error);
         }
@@ -37,28 +42,18 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
 
   const handleReview = () => setIsReviewModalOpen(true);
 
-  const handleReviewSubmit = async () => {
-    const newTrailReview = {
-      placesId: place.place_id,
-      name: place.name,
-      location: place.vicinity,
-      description: reviewText,
-      overallRating,
-      difficultyRating,
-    };
-
+  const handleReviewSubmit = async (reviewData) => {
     try {
-      setIsLoading(true);
-      await createTrail(newTrailReview);
-      alert('Review submitted successfully!');
+      // Call API to submit review
+      await createReview(reviewData);
+      alert("Review submitted successfully!");
       setIsReviewModalOpen(false);
       onClose(); // Optionally close the main modal
     } catch (error) {
-      console.error('Failed to submit review:', error);
-    } finally {
-      setIsLoading(false);
+      console.error("Failed to submit review:", error);
     }
   };
+
 
   const handleFavorite = async () => {
     try {
@@ -71,20 +66,42 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
   };
 
   const handleCheckIn = async () => {
-    if (place.geometry?.location) {
-      const { lat, lng } = place.geometry.location;
-      const distance = calculateDistance(currentLocation.lat, currentLocation.lng, lat, lng);
-      const threshold = 5000;
+    if (!user?.id) {
+      console.error("User ID is not set in AuthContext.");
+      alert("You need to be logged in to check in.");
+      return;
+    }
+    try {
 
-      if (distance <= threshold) {
-        const checkins = { trailId, name: place.name, userId: user.id };
-        await createCheckIn(checkins);
-        alert('Check-in successful!');
-      } else {
-        alert(`You are too far from ${place.name}. Move closer to check in!`);
+      if (!user?.id) {
+        alert("User ID is missing. Please log in.");
+        return;
       }
-    } else {
-      alert("Unable to determine trail location.");
+
+      if (place.geometry?.location) {
+        const { lat, lng } = place.geometry.location;
+        const distance = calculateDistance(currentLocation.lat, currentLocation.lng, lat, lng);
+        const threshold = 5000;
+
+        if (distance <= threshold) {
+          const checkins = {
+            trailId: trailId,
+            name: place.name,
+            userId: user.id
+          };
+
+
+          const response = await createCheckIn(checkins);
+          alert("Check-in successful!");
+        } else {
+          alert(`You are too far from ${place.name}. Move closer to check in!`);
+        }
+      } else {
+        alert("Unable to determine trail location.");
+      }
+    } catch (error) {
+      console.error("Error in handleCheckIn:", error.response?.data || error.message);
+      alert("Failed to check in. Please try again.");
     }
   };
 
@@ -96,6 +113,21 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
           <Modal.Title>{place.name || 'Trail Information'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {trailImage ? (
+            <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+              <img
+                src={trailImage}
+                alt={`${place.name} Trail`}
+                style={{
+                  maxWidth: '100%',
+                  height: 'auto',
+                  borderRadius: '8px',
+                }}
+              />
+            </div>
+          ) : (
+            <p>No image available for this trail.</p>
+          )}
           <p>Location: {place.vicinity || 'No location attached'}</p>
         </Modal.Body>
         <Modal.Footer>
@@ -117,55 +149,20 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
       </Modal>
 
       {/* Review Modal */}
-      <Modal show={isReviewModalOpen} onHide={() => setIsReviewModalOpen(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Submit a Review for {place.name}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Write your review</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-              placeholder="Share your thoughts about this trail..."
-            />
-          </Form.Group>
-
-          <Form.Label className="mt-3">Rate this Trail:</Form.Label>
-          <StarRatings
-            rating={overallRating}
-            starRatedColor="gold"
-            changeRating={(value) => setOverallRating(value)}
-            numberOfStars={5}
-            name="overallRating"
-            starDimension="30px"
-            starSpacing="5px"
-            starHoverColor="gold" // Matches the rated color, effectively removing hover effect
-          />
-
-          <Form.Label className="mt-3">Rate the Difficulty of the Trail:</Form.Label>
-          <StarRatings
-            rating={difficultyRating}
-            starRatedColor="gold"
-            changeRating={(value) => setDifficultyRating(value)}
-            numberOfStars={5}
-            name="difficultyRating"
-            starDimension="30px"
-            starSpacing="5px"
-            starHoverColor="gold" // Matches the rated color, effectively removing hover effect
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={handleReviewSubmit} disabled={isLoading}>
-            {isLoading ? <Spinner animation="border" size="sm" /> : 'Submit Review'}
-          </Button>
-          <Button variant="secondary" onClick={() => setIsReviewModalOpen(false)}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        trailId={trailId}
+        placeName={place.name}
+        user={user} // Pass the user object
+        onSubmit={(reviewData) =>
+          handleReviewSubmit({
+            ...reviewData,
+            trailId: trailId,
+            userId: user.id,
+          })
+        }
+      />
     </>
   );
 };

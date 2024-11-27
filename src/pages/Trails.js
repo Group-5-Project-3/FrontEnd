@@ -19,7 +19,7 @@ export default function Trails() {
 
           try {
             const data = await getNearbyParks(latitude, longitude, radius, type, keyword);
-            console.log(data);
+            // console.log(data);
             setPlaces(data.results || []);
           } catch (err) {
             setError(err.message);

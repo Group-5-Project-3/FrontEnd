@@ -1,66 +1,176 @@
-import React, { useState, useEffect } from 'react';
-import { GoogleMap, MarkerF, LoadScriptNext } from '@react-google-maps/api';
+// import React, { useState, useContext } from "react";
+// import { AuthContext } from "../AuthContext";
+// import { uploadProfilePicture } from "../components/APICalls/UserController";
+
+// const Test = () => {
+//   const [image, setImage] = useState(null);
+//   const [preview, setPreview] = useState(null);
+//   const { user } = useContext(AuthContext); // Assuming user object contains 'id'
+
+//   const handleImageChange = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       setImage(file);
+
+//       // Preview the image
+//       const reader = new FileReader();
+//       reader.onload = () => {
+//         setPreview(reader.result); // Base64 representation of the image
+//       };
+//       reader.readAsDataURL(file);
+//     }
+//   };
+
+//   const handleSubmit = async () => {
+//     if (image) {
+//       try {
+//         // Call the uploadProfilePicture function
+//         const response = await uploadProfilePicture(user.id, image);
+//         console.log("Image uploaded successfully:", response);
+
+//         // Optionally, provide feedback to the user
+//         alert("Profile picture uploaded successfully!");
+//       } catch (error) {
+//         console.error("Error uploading image:", error);
+//         alert("Failed to upload profile picture. Please try again.");
+//       }
+//     } else {
+//       alert("Please select an image to upload.");
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <input type="file" accept="image/*" onChange={handleImageChange} />
+//       {preview && (
+//         <img
+//           src={preview}
+//           alt="Preview"
+//           style={{ maxWidth: "300px", marginTop: "20px" }}
+//         />
+//       )}
+//       <button onClick={handleSubmit}>Submit</button>
+//     </div>
+//   );
+// };
+
+// export default Test;
+
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../AuthContext";
+import { uploadTrailImage, getImagesByTrailId } from "../components/APICalls/TrailImageController";
 
 const Test = () => {
-  const [parks, setParks] = useState([]);
-  const apiKey = "AIzaSyDqZs2GcqLEwKD1rganE4GHJ5HHY85hRd0";
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [trailId, setTrailId] = useState("6738ed9bb054676b73d85135"); // Input for trail ID
+  const [description, setDescription] = useState(""); // Input for description
+  const [trailImages, setTrailImages] = useState([]); // State to store fetched trail images
+  const { user } = useContext(AuthContext); // Assuming user object contains 'id'
 
-  // Fetch National Parks
-  const fetchNationalParks = async () => {
-    const location = "36.7783,-119.4179"; // Center of California
-    const radius = 500000; // 500 km radius
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=${radius}&type=park&keyword=national+park&key=${apiKey}`;
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
 
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
+    if (file) {
+      setImage(file);
 
-      if (data.results) {
-        setParks(data.results);
-        console.log(data);
-      } else {
-        console.error("No results found:", data);
-      }
-    } catch (error) {
-      console.error("Error fetching data from Places API:", error);
+      // Preview the image
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreview(reader.result); // Base64 representation of the image
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Fetch parks on component mount
-  useEffect(() => {
-    fetchNationalParks();
-  }, []);
+  const handleSubmit = async () => {
+    if (image && trailId && description) {
+      try {
+        // Call the uploadTrailImage function
+        const response = await uploadTrailImage(image, trailId, user.id, description);
+        console.log("Trail image uploaded successfully:", response);
+
+        // Optionally, provide feedback to the user
+        alert("Trail image uploaded successfully!");
+      } catch (error) {
+        console.error("Error uploading trail image:", error);
+        alert("Failed to upload trail image. Please try again.");
+      }
+    } else {
+      alert("Please fill all fields and select an image before submitting.");
+    }
+  };
+
+  const handleFetchImages = async () => {
+    try {
+      // Fetch images by trail ID
+      const images = await getImagesByTrailId(trailId);
+      console.log("Fetched trail images:", images);
+      setTrailImages(images); // Update state with fetched images
+    } catch (error) {
+      console.error("Error fetching trail images:", error);
+      alert("Failed to fetch trail images. Please try again.");
+    }
+  };
 
   return (
-    <div className="container mt-4">
-      <h1>National Parks in California</h1>
-      <LoadScriptNext googleMapsApiKey={apiKey}>
-        <GoogleMap
-          mapContainerStyle={{ width: '100%', height: '400px' }}
-          center={{ lat: 36.7783, lng: -119.4179 }}
-          zoom={6}
-        >
-          {parks.map((park) => (
-            <MarkerF
-              key={park.place_id}
-              position={{
-                lat: park.geometry.location.lat,
-                lng: park.geometry.location.lng,
-              }}
-              title={park.name}
-            />
-          ))}
-        </GoogleMap>
-      </LoadScriptNext>
-      <div className="mt-4">
-        <h2>List of Parks</h2>
-        <ul>
-          {parks.map((park) => (
-            <li key={park.place_id}>
-              <strong>{park.name}</strong> - {park.vicinity}
-            </li>
-          ))}
-        </ul>
+    <div>
+      <h1>Upload and Fetch Trail Images</h1>
+      
+      <label>
+        Trail ID:
+        <input
+          type="text"
+          value={trailId}
+          onChange={(e) => setTrailId(e.target.value)}
+          placeholder="Enter trail ID"
+        />
+      </label>
+      
+      <label>
+        Description:
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Enter description"
+        />
+      </label>
+      
+      <label>
+        Upload Image:
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+      </label>
+      
+      {preview && (
+        <img
+          src={preview}
+          alt="Preview"
+          style={{ maxWidth: "300px", marginTop: "20px" }}
+        />
+      )}
+      
+      <button onClick={handleSubmit}>Submit</button>
+
+      <hr />
+
+      <h2>Fetch Trail Images</h2>
+      <button onClick={handleFetchImages}>Fetch Images</button>
+      
+      <div>
+        {trailImages.length > 0 ? (
+          trailImages.map((img, index) => (
+            <div key={index}>
+              <img
+                src={img.imageUrl} // Assuming the backend returns 'imageUrl' for each image
+                alt={img.description || `Trail Image ${index + 1}`}
+                style={{ maxWidth: "300px", margin: "10px" }}
+              />
+              <p>{img.description}</p>
+            </div>
+          ))
+        ) : (
+          <p>No images found for this trail.</p>
+        )}
       </div>
     </div>
   );

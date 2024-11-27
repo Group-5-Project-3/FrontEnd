@@ -23,7 +23,7 @@ const Setting = () => {
       case 'Log Out':
         return (
           <div>
-            <h2>Are you sure you want to log out?</h2>
+            <h2 style={{ color: '#ffffff' }}>Are you sure you want to log out?</h2>
             <button onClick={handleLogout} className="btn btn-danger">Log Out</button>
           </div>
         );
@@ -58,7 +58,14 @@ const Setting = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="p-4" style={{ flex: 1 }}>
+      <div className="p-4" style={{
+        flex: 1,
+        backgroundColor: '#1b4332', // Light gray background
+        height: '100%', // Ensures full height
+        // margin: 0, // Remove any default margins
+        // padding: 0, // Remove any default padding
+        // border: 'none', // Ensure there's no border
+      }}>
         {renderCategoryContent()}
       </div>
     </div>

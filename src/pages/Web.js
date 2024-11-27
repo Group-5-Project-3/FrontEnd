@@ -24,7 +24,6 @@ export default function WebScreen() {
   
           try {
             const data = await getNearbyParks(latitude, longitude);
-            console.log('Fetched places:', data); // Log API response
             setPlaces(data?.results || []);
           } catch (err) {
             console.error('Failed to fetch nearby places:', err); // Log API errors
