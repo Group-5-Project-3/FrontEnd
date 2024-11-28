@@ -18,9 +18,16 @@ import { TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../AuthContext";
 import { decodeJWT } from "./utils/utils";
-import { addFavoriteTrail, findUserByUserId } from "../../APICalls";
+import {
+  addFavoriteTrail,
+  createReview,
+  findUserByUserId,
+  getTrailReviews,
+} from "../../APICalls";
 import { TextInput } from "react-native";
 import StarRating from "react-native-star-rating-widget";
+import { AirbnbRating } from "react-native-ratings";
+import { ScrollView } from "react-native";
 
 const MapComponent = () => {
   const [userName, setUserName] = useState(null);
@@ -47,6 +54,45 @@ const MapComponent = () => {
   const [userReview, setUserReview] = useState("");
 
   const [rating, setRating] = useState(0);
+  const [difficulty, setDifficulty] = useState(3);
+
+  const test_arr = [
+    {
+      parkName: "James Park",
+      parkDiff: 3,
+      user_name: "Sarah",
+      comment: "Awesome!",
+      id: 1,
+    },
+    {
+      parkName: "Centrel Park",
+      parkDiff: 5,
+      user_name: "Joe",
+      comment: "Really green.",
+      id: 2,
+    },
+    {
+      parkName: "Hills Trail",
+      parkDiff: 5,
+      user_name: "John",
+      comment: "Tiring but worth it!",
+      id: 3,
+    },
+    {
+      parkName: "Moutain Trail",
+      parkDiff: 1,
+      user_name: "Tom",
+      comment: "It sucks",
+      id: 4,
+    },
+    {
+      parkName: "Moutain Trail",
+      parkDiff: 3,
+      user_name: "Jose",
+      comment: "Its ok. I liked the view at the top but it was kinda short",
+      id: 5,
+    },
+  ];
 
   useEffect(() => {
     // const { user, loading, logout } = useContext(AuthContext);
@@ -156,222 +202,6 @@ const MapComponent = () => {
     }
   };
 
-  const customMapStyle = [
-    {
-      featureType: "all",
-      elementType: "labels.text.fill",
-      stylers: [
-        {
-          saturation: 36,
-        },
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 40,
-        },
-      ],
-    },
-    {
-      featureType: "all",
-      elementType: "labels.text.stroke",
-      stylers: [
-        {
-          visibility: "on",
-        },
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 16,
-        },
-      ],
-    },
-    {
-      featureType: "all",
-      elementType: "labels.icon",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "administrative",
-      elementType: "all",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "administrative",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 20,
-        },
-      ],
-    },
-    {
-      featureType: "administrative",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 17,
-        },
-        {
-          weight: 1.2,
-        },
-      ],
-    },
-    {
-      featureType: "administrative.neighborhood",
-      elementType: "all",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "landscape",
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 20,
-        },
-        {
-          visibility: "on",
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 21,
-        },
-      ],
-    },
-    {
-      featureType: "poi",
-      elementType: "labels",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "poi.park",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#1a732c",
-        },
-      ],
-    },
-    {
-      featureType: "road",
-      elementType: "labels",
-      stylers: [
-        {
-          visibility: "off",
-        },
-      ],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.fill",
-      stylers: [
-        {
-          color: "#b2b2b2",
-        },
-        {
-          lightness: 17,
-        },
-      ],
-    },
-    {
-      featureType: "road.highway",
-      elementType: "geometry.stroke",
-      stylers: [
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 29,
-        },
-        {
-          weight: 0.2,
-        },
-      ],
-    },
-    {
-      featureType: "road.arterial",
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#8e8e8e",
-        },
-        {
-          lightness: 18,
-        },
-      ],
-    },
-    {
-      featureType: "road.local",
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#808080",
-        },
-        {
-          lightness: 16,
-        },
-      ],
-    },
-    {
-      featureType: "transit",
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#000000",
-        },
-        {
-          lightness: 19,
-        },
-      ],
-    },
-    {
-      featureType: "water",
-      elementType: "geometry",
-      stylers: [
-        {
-          color: "#0f252e",
-        },
-        {
-          lightness: 17,
-        },
-      ],
-    },
-  ];
-
   const parkPressed = (name, id, lat, long, image) => {
     // alert(
     //   "park pressed, id: " + id,
@@ -385,7 +215,7 @@ const MapComponent = () => {
     setModalVisible(true);
   };
 
-  const submitReview = () => {
+  const submitReview = async () => {
     console.log("in submit review");
     console.log("user entered: ", userReview);
 
@@ -399,9 +229,18 @@ const MapComponent = () => {
       return;
     }
 
-    console.log("user score: ", rating);
+    const reviewInfo = {
+      trailId: modalID,
+      userId: userID,
+      difficultyRating: difficulty,
+      rating: rating,
+      review: userReview,
+    };
 
     // make 'review' object and call POST review endpoint
+    console.log("calling API createReview...");
+    const apiCallData = await createReview(reviewInfo);
+    console.log("respone data: ", apiCallData);
   };
 
   const checkIn = () => {
@@ -430,13 +269,21 @@ const MapComponent = () => {
     setModalVisible(true);
   };
 
+  const getReviewsForPark = async () => {
+    console.log("in getReviewForPark");
+    console.log("park id: ", modalID);
+    console.log("calling api...");
+    const response = await getTrailReviews(modalID);
+    console.log("response data: ", response);
+  };
+
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
         region={location}
         showsUserLocation={true}
-        customMapStyle={customMapStyle}
+        // customMapStyle={customMapStyle}
         tracksViewChanges={false}
       >
         {places.map((place) => (
@@ -501,7 +348,22 @@ const MapComponent = () => {
           </Pressable>
 
           <View style={styles.lineSeprator}></View>
-          <Text style={styles.reviewsText}>Reviews</Text>
+          <Pressable onPress={getReviewsForPark}>
+            <Text style={styles.reviewsText}>Reviews</Text>
+          </Pressable>
+
+          <ScrollView>
+            {test_arr.map((r) => (
+              <View key={r.id} style={styles.reviewContainer}>
+                <Text style={styles.reviewParkName}>{r.parkName}</Text>
+                <Text style={styles.reviewDifficulty}>
+                  Difficulty: {r.parkDiff}
+                </Text>
+                <Text style={styles.reviewUser}>User: {r.user_name}</Text>
+                <Text style={styles.reviewComment}>"{r.comment}"</Text>
+              </View>
+            ))}
+          </ScrollView>
         </SafeAreaView>
       </Modal>
 
@@ -535,6 +397,10 @@ const MapComponent = () => {
           </SafeAreaView>
 
           <StarRating rating={rating} onChange={setRating} />
+
+          <Text style={styles.reviewsText}>
+            For test purposes the diffculty will be 3
+          </Text>
 
           <Pressable
             style={styles.modalActionButton}
@@ -655,6 +521,30 @@ const styles = StyleSheet.create({
   },
   inputText: {
     color: "white",
+  },
+  reviewContainer: {
+    backgroundColor: "#333",
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+  },
+  reviewParkName: {
+    fontWeight: "bold",
+    color: "white",
+    fontSize: 16,
+  },
+  reviewDifficulty: {
+    color: "#ddd",
+    fontSize: 14,
+  },
+  reviewUser: {
+    color: "#bbb",
+    fontSize: 14,
+  },
+  reviewComment: {
+    color: "white",
+    fontStyle: "italic",
+    fontSize: 14,
   },
 });
 

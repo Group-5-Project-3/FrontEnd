@@ -258,6 +258,7 @@ export const deleteCheckIn = async (id) => {
 
 export const getTrailReviews = async (trailId) => {
   try {
+    console.log("in getTrailReviews");
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
 
     const response = await axios.get(
@@ -269,6 +270,7 @@ export const getTrailReviews = async (trailId) => {
         },
       }
     );
+    console.log("success...");
     return response.data;
   } catch (error) {
     console.error(
@@ -305,8 +307,12 @@ export const getUserReviews = async (userId) => {
 
 // Create a new review
 export const createReview = async (review) => {
+  // console("inside API createReview");
   try {
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+    console.log("inside API createReview");
+    console.log("token data: ", token);
+    console.log("review object: ", review);
 
     const response = await axios.post(
       "https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews",
@@ -318,6 +324,7 @@ export const createReview = async (review) => {
         },
       }
     );
+    console("review uploaded to db");
     return response.data;
   } catch (error) {
     console.error(
