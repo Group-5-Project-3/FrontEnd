@@ -13,6 +13,7 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [trailId, setTrailId] = useState("");
   const [trailImage, setTrailImage] = useState("");
+  const [trailImageLoading, setTrailImageLoading] = useState(false);
   const { user } = useContext(AuthContext);
 
   // Fetch trailId when modal opens
@@ -22,12 +23,12 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
         try {
           const trailInfo = await checkIfTrailExist(place.place_id, place);
           setTrailId(trailInfo.trailId);
+          // Fetch trail images
           const trailImages = await getImagesByTrailId(trailInfo.trailId);
-          if (trailImages == 0) {
-            setTrailImage("");
-          } else {
+          if (trailImages.length > 0) {
             setTrailImage(trailImages[0].imageUrl);
-            console.log(trailImages[0].imageUrl);
+          } else {
+            setTrailImage(""); // No image available
           }
         } catch (error) {
           console.error('Error fetching trail info:', error);
@@ -38,9 +39,15 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
     fetchTrailId();
   }, [isOpen, place]);
 
-  if (!place) return null; // Return null if no place is selected
+  const handleImageLoad = () => {
+    setTrailImageLoading(false); // Stop showing loading state when the image is loaded
+  };
 
   const handleReview = () => setIsReviewModalOpen(true);
+
+  if (!place) return null; // Return null if no place is selected
+
+
 
   const handleReviewSubmit = async (reviewData) => {
     try {

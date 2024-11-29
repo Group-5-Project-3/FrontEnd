@@ -20,7 +20,6 @@ const ReviewModal = ({ isOpen, onClose, trailId, placeName, user, onSubmit }) =>
             return;
         }
 
-
         const reviewData = {
             trailId,
             comment: reviewText,
@@ -39,6 +38,7 @@ const ReviewModal = ({ isOpen, onClose, trailId, placeName, user, onSubmit }) =>
 
         setIsLoading(true);
         try {
+            console.log(reviewData);
             await onSubmit(reviewData); // Ensure your `onSubmit` function can handle FormData
             onClose();
         } catch (error) {

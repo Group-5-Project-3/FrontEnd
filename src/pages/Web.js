@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Spinner, Alert } from 'react-bootstrap';
+import { Container, Spinner, Alert, Form, InputGroup, Button } from 'react-bootstrap';
 import MapComponent from '../components/Map Components/MapComponent';
 import { getNearbyParks } from '../components/APICalls';
+import { getCoordinates } from '../components/utils';
 
 export default function WebScreen() {
   const [places, setPlaces] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchUserLocationAndPlaces = async () => {
@@ -43,6 +45,32 @@ export default function WebScreen() {
   
     fetchUserLocationAndPlaces();
   }, []);
+
+  const handleSearch = async () => {
+    // Implement search functionality, e.g., filter `places` based on `searchQuery`
+    if (!searchQuery.trim()) {
+      setError('Please enter a search query.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Use getCoordinates to geocode the search query
+      const coordinates = await getCoordinates(searchQuery);
+      setCurrentLocation(coordinates);
+
+      // Fetch nearby parks for the searched location
+      const data = await getNearbyParks(coordinates.lat, coordinates.lng);
+      setPlaces(data?.results || []);
+    } catch (err) {
+      console.error('Search error:', err);
+      setError('Failed to search for the location. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -80,13 +108,37 @@ export default function WebScreen() {
   }
 
   return (
-    <Container fluid className="d-flex flex-column" style={{ height: '100%', padding: 0 }}>
+    <Container fluid className="position-relative" style={{ height: '100%', padding: 0 }}>
+      {/* Search Bar */}
+      <div className="position-absolute"
+        style={{
+          top: '10px',
+          right: '10px',
+          zIndex: 10,
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          borderRadius: '8px',
+          padding: '8px',
+          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+        }}>
+        <InputGroup>
+          <Form.Control
+            type="text"
+            placeholder="Search Location"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Button variant="primary" onClick={handleSearch}>
+            Search
+          </Button>
+        </InputGroup>
+      </div>
+
       {places.length === 0 ? (
         <Alert variant="info" className="text-center">
           No nearby parks found.
         </Alert>
       ) : (
-        <MapComponent places={places} />
+        <MapComponent places={places} searchLocation={currentLocation} />
       )}
     </Container>
   );

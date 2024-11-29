@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 // import { getTrailByPlacesId, createTrail } from '../../APICalls';
 import { getTrailByPlacesId, createTrail } from './APICalls/TrailController';
+import axios from 'axios';
 
 export function decodeJWT(token) {
     const base64Url = token.split('.')[1];
@@ -59,4 +60,53 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const distance = R * c;
 
     return distance; // Returns the distance in meters
+};
+
+export const sortBadges = (badges) => {
+    // Helper function to sort based on numeric criteria
+    const sortByCriteria = (array) => {
+        return array.sort((a, b) => {
+            const numA = parseInt(a.criteria.match(/\d+/)?.[0] || "0", 10);
+            const numB = parseInt(b.criteria.match(/\d+/)?.[0] || "0", 10);
+            return numA - numB;
+        });
+    };
+
+    // Group and sort badges
+    const NATIONAL_PARKS = badges.filter(item => item.type === "NATIONAL_PARKS");
+    const DISTANCE = sortByCriteria(badges.filter(item => item.type === "DISTANCE"));
+    const ELEVATION = sortByCriteria(badges.filter(item => item.type === "ELEVATION"));
+    const TOTAL_HIKES = sortByCriteria(badges.filter(item => item.type === "TOTAL_HIKES"));
+
+    // Combine all groups into one array
+    const badge = [...NATIONAL_PARKS, ...DISTANCE, ...ELEVATION, ...TOTAL_HIKES];
+
+    return badge;
+};
+
+/**
+ * Fetches the latitude and longitude of a given address.
+ * @param {string} address - The address to geocode.
+ * @returns {Promise<object>} - A promise that resolves to the coordinates { lat, lng }.
+ * @throws {Error} - Throws an error if the API call fails or returns a status other than "OK".
+ */
+export const getCoordinates = async (address) => {
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+
+    if (!apiKey) {
+        throw new Error('Google Maps API key is missing. Check your .env.local file.');
+    }
+
+
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+    try {
+        const response = await axios.get(url);
+        if (response.data.status === 'OK') {
+            return response.data.results[0].geometry.location;
+        } else {
+            throw new Error(`Geocoding API error: ${response.data.status}`);
+        }
+    } catch (error) {
+        throw new Error(`Error fetching coordinates: ${error.message}`);
+    }
 };
