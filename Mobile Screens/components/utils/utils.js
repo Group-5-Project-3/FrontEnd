@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
+import { createTrail, getTrailByPlacesId } from "../../../APICalls";
 // import { getTrailByPlacesId, createTrail } from '../../APICalls';
 // import { getTrailByPlacesId, createTrail } from "./APICalls/TrailController";
 
@@ -19,31 +20,6 @@ const isTokenExpired = (decodedToken) => {
   return decodedToken.exp < currentTime;
 };
 
-export async function checkIfTrailExist(place_id, place) {
-  try {
-    // Await the result of getTrailByPlacesId
-    const trail = await getTrailByPlacesId(place_id);
-    return trail; // Return the resolved trail object
-  } catch (error) {
-    // If the trail is not found (404), create it
-    if (error.response && error.response.status === 404) {
-      console.log(
-        `Trail with place_id ${place_id} not found. Creating a new trail.`
-      );
-      const newTrail = {
-        placesId: place_id,
-        name: place.name,
-        location: place.vicinity,
-        description: "New review",
-      };
-      return await createTrail(newTrail); // Call the createTrail function to add it to the database
-    }
-    // For any other errors, log and re-throw
-    console.error("An unexpected error occurred:", error.message);
-    throw error;
-  }
-}
-
 // Utility function to calculate distance in meters between two points
 export const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const toRad = (value) => (value * Math.PI) / 180;
@@ -63,3 +39,32 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
   return distance; // Returns the distance in meters
 };
+
+export async function checkIfTrailExist(place_id, place) {
+  console.log("in checkIfTrailExist");
+  try {
+    // Await the result of getTrailByPlacesId
+    const trail = await getTrailByPlacesId(place_id);
+    return trail; // Return the resolved trail object
+
+    //change this from error
+  } catch (error) {
+    // If the trail is not found (404), create it
+    if (error.response && error.response.status === 404) {
+      console.log(
+        `Trail with place_id ${place_id} not found. Creating a new trail.`
+      );
+      const newTrail = {
+        placesId: place_id,
+        name: place.name,
+        location: place.vicinity,
+        description: "New review",
+      };
+      // MIGHT CAUSE ERROR IF NEW TRAIL IS CREATE AND DOES NOT HAVE IMAGE FIELD
+      return await createTrail(newTrail); // Call the createTrail function to add it to the database
+    }
+    // For any other errors, log and re-throw
+    console.error("An unexpected error occurred:", error.message);
+    throw error;
+  }
+}

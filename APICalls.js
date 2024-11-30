@@ -1,5 +1,6 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { decodeJWT } from "./Mobile Screens/components/utils/utils";
 
 // Login function
 export const login = async (username, password) => {
@@ -256,6 +257,26 @@ export const deleteCheckIn = async (id) => {
   }
 };
 
+export const getTrailByPlacesId = async (placesId) => {
+  try {
+    const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+
+    const response = await axios.get(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/places/${placesId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching trail with places ID ${placesId}:`, error);
+    throw error;
+  }
+};
+
 export const getTrailReviews = async (trailId) => {
   try {
     console.log("in getTrailReviews");
@@ -312,7 +333,13 @@ export const createReview = async (review) => {
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
     console.log("inside API createReview");
     console.log("token data: ", token);
+    const decodedToken = decodeJWT(token);
+    console.log("Decoded token payload:", decodedToken);
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+    console.log("Is token expired:", currentTimestamp > decodedToken.exp);
     console.log("review object: ", review);
+
+    //https://cst438project3-6ec60cdacb89.herokuapp.com{POST [/api/reviews]}
 
     const response = await axios.post(
       "https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews",
@@ -324,13 +351,18 @@ export const createReview = async (review) => {
         },
       }
     );
-    console("review uploaded to db");
+    console.log("review uploaded to db");
     return response.data;
   } catch (error) {
     console.error(
       "Error creating review:",
       error.response?.data || error.message
     );
+    console.error("Error creating review:");
+    console.error("Response status:", error.response?.status);
+    console.error("Response headers:", error.response?.headers);
+    console.error("Response data:", error.response?.data);
+    console.error("Error message:", error.message);
     throw error;
   }
 };
@@ -339,6 +371,8 @@ export const createReview = async (review) => {
 export const updateReview = async (id, review) => {
   try {
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+    const decodedToken = decodeJWT(token);
+    console.log("Decoded token payload:", decodedToken);
 
     const response = await axios.put(
       `https://cst438project3-6ec60cdacb89.herokuapp.com/api/reviews/${id}`,
@@ -386,6 +420,27 @@ export const deleteReview = async (id) => {
         error.response?.data || error.message
       );
     }
+    throw error;
+  }
+};
+
+export const createTrail = async (trail) => {
+  try {
+    const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+
+    const response = await axios.post(
+      "https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails",
+      trail,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating trail:", error);
     throw error;
   }
 };

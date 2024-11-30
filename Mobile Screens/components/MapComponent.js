@@ -17,7 +17,7 @@ import TreeLogo from "../../assets/TreeLogo.png";
 import { TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../AuthContext";
-import { decodeJWT } from "./utils/utils";
+import { checkIfTrailExist, decodeJWT } from "./utils/utils";
 import {
   addFavoriteTrail,
   createReview,
@@ -46,6 +46,10 @@ const MapComponent = () => {
   const [modalName, setModalName] = useState("");
   const [modalLong, setModalLong] = useState(0);
   const [modalLat, setModalLat] = useState(0);
+
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+  const [trailId, setTrailId] = useState(null);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -158,8 +162,33 @@ const MapComponent = () => {
     //test
   }, []);
 
+  useEffect(() => {
+    console.log("selectedPlace changed:", selectedPlace);
+
+    const fetchTrailId = async () => {
+      console.log("In fetchTrailId");
+      console.log("SelectedPlace:", selectedPlace);
+
+      if (selectedPlace) {
+        console.log("Fetching trail ID for:", selectedPlace);
+        try {
+          const trailInfo = await checkIfTrailExist(
+            selectedPlace.place_id,
+            selectedPlace
+          );
+          console.log("Trail ID retrieved:", trailInfo.trailId);
+          setTrailId(trailInfo.trailId);
+        } catch (error) {
+          console.error("Error fetching trail info:", error);
+        }
+      }
+    };
+
+    fetchTrailId();
+  }, [selectedPlace]);
+
   const fetchNearbyPlaces = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBCqXWNXUbFaITYSCy48mDKn8NFwpBtB4E"; // Replace with your actual API key
+    const apiKey = "AIzaSyBnst1HITYqMUngjdlU5bqarqkHvFG2Emc"; // Replace with your actual API key
     const radius = 5000;
 
     console.log("in fetchNearbyPlaces");
@@ -202,18 +231,46 @@ const MapComponent = () => {
     }
   };
 
-  const parkPressed = (name, id, lat, long, image) => {
+  const parkPressed = (name, id, lat, long, place) => {
     // alert(
     //   "park pressed, id: " + id,
     //   +" name: " + name + " lat & long: " + lat,
     //   +long
     // );
+    console.log("park pressed");
     setModalID(id);
     setModalName(name);
     setModalLat(lat);
     setModalLong(long);
     setModalVisible(true);
+    setSelectedPlace(place);
+    console.log("done with press");
   };
+
+  // const fetchTrailId = async () => {
+  //   console.log("in fetchTrailId");
+  //   console.log("selectedPlace is: ", selectedPlace);
+  //   if (selectedPlace) {
+  //     console.log("in selectedPlace if");
+  //     try {
+  //       const trailInfo = await checkIfTrailExist(
+  //         selectedPlace.place_id,
+  //         selectedPlace
+  //       );
+  //       console.log("setting trailId to: ", trailInfo.trailId);
+  //       setTrailId(trailInfo.trailId);
+  // const trailImages = await getImagesByTrailId(trailInfo.trailId);
+  // if (trailImages == 0) {
+  //   setTrailImage("");
+  // } else {
+  //   setTrailImage(trailImages[0].imageUrl);
+  //   console.log(trailImages[0].imageUrl);
+  // }
+  //     } catch (error) {
+  //       console.error("Error fetching trail info:", error);
+  //     }
+  //   }
+  // };
 
   const submitReview = async () => {
     console.log("in submit review");
@@ -230,17 +287,22 @@ const MapComponent = () => {
     }
 
     const reviewInfo = {
-      trailId: modalID,
+      trailId: trailId,
       userId: userID,
       difficultyRating: difficulty,
       rating: rating,
-      review: userReview,
+      comment: userReview,
     };
 
     // make 'review' object and call POST review endpoint
     console.log("calling API createReview...");
-    const apiCallData = await createReview(reviewInfo);
-    console.log("respone data: ", apiCallData);
+
+    try {
+      const apiCallData = await createReview(reviewInfo);
+      console.log("respone data: ", apiCallData);
+    } catch (e) {
+      console.log("Error calling createReview: ", e);
+    }
   };
 
   const checkIn = () => {
@@ -301,7 +363,8 @@ const MapComponent = () => {
                 place.name,
                 place.place_id,
                 place.geometry.location.lat,
-                place.geometry.location.lng
+                place.geometry.location.lng,
+                place
               )
             }
           >
