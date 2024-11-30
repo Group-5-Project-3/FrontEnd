@@ -1,0 +1,158 @@
+/* Flip Card Container */
+.flip-card {
+    perspective: 1000px;
+    cursor: pointer;
+    width: 100%;
+    height: 220px; /* Adjusted card height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s, box-shadow 0.6s ease-in-out;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for both sides */
+}
+
+.flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Increased shadow on flip */
+}
+
+/* Front and Back Sides */
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: hidden;
+}
+
+.flip-card-front {
+    background-color: #fff; /* Front card background color */
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+    background-color: #f8f9fa; /* Back card background color */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures even spacing */
+}
+
+/* Back Card Title */
+.back-card-title {
+    font-size: 1.2rem; /* Larger title for better readability */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Card Content */
+.card-content {
+    text-align: center;
+    width: 100%;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* Card Image */
+.card-image {
+    width: 100%;
+    height: 140px; /* Adjusted height for proportion */
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin-bottom: 5px;
+}
+
+/* Card Title */
+.card-title {
+    font-size: 1rem; /* Larger font size */
+    margin: 10px 0;
+    padding: 0 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: bold;
+    color: #222;
+}
+
+/* Card Description */
+.card-description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    color: #555; /* Subtle color for text */
+}
+
+/* Card Sentiments */
+.card-sentiments {
+    font-size: 0.9rem;
+    color: #444;
+    text-align: left;
+    padding: 0 10px;
+    line-height: 1.6;
+}
+
+.card-sentiments ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.card-sentiments ul li {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+/* Button Style for Remove */
+button {
+    font-size: 0.85rem;
+    padding: 8px 15px;
+    border-radius: 4px;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #bb2d3b;
+}
+
+/* General Improvements */
+.flip-card-container {
+    margin: 0 auto; /* Center align the cards */
+    max-width: 100%;
+    padding: 10px;
+}
+
+/* Row spacing */
+.row {
+    margin: 0 -5px;
+}
+
+.col {
+    padding: 0 5px;
+}
+

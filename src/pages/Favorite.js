@@ -1,24 +1,25 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { AuthContext } from '../AuthContext';
-import { getFavoriteTrailsWithImages } from '../components/APICalls/FavoriteController';
-import { Card, Row, Col, Container, Dropdown } from 'react-bootstrap';
-import { BiDotsVerticalRounded } from 'react-icons/bi';
+import { getFavoriteTrailsWithImages, deleteFavoriteTrail } from '../components/APICalls/FavoriteController';
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import './Favorite.css';
 
 const Favorite = () => {
-  const { user } = useContext(AuthContext); // Get the user from context
-  const [favoriteTrails, setFavoriteTrails] = useState([]); // State to store favorite trails
-  const [loading, setLoading] = useState(true); // State to handle loading
-  const [error, setError] = useState(null); // State to handle errors
+  const { user } = useContext(AuthContext);
+  const [favoriteTrails, setFavoriteTrails] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeCardId, setActiveCardId] = useState(null);
+  const contentRefs = useRef({}); // Store references to the card content elements
 
   useEffect(() => {
     const fetchFavoriteTrails = async () => {
-      if (!user) return; // Ensure user is available
+      if (!user) return;
 
       try {
         setLoading(true);
-        const trails = await getFavoriteTrailsWithImages(user.id); // Fetch trails by user ID
+        const trails = await getFavoriteTrailsWithImages(user.id);
         setFavoriteTrails(trails);
-        console.log(trails);
       } catch (err) {
         setError('Failed to fetch favorite trails.');
       } finally {
@@ -27,25 +28,51 @@ const Favorite = () => {
     };
 
     fetchFavoriteTrails();
-  }, [user]); // Re-run if `user` changes
+  }, [user]);
 
-  const handleRemove = (trailId) => {
-    // console.log(`Removing trail with ID: ${trailId}`);
-    setFavoriteTrails((prev) => prev.filter((trail) => trail.id !== trailId));
+  const handleFlip = (trailId) => {
+    // Reset the scroll of the previously active card's back content
+    if (activeCardId && contentRefs.current[activeCardId]) {
+      contentRefs.current[activeCardId].scrollTop = 0; // Reset scroll to top
+    }
+
+    setActiveCardId((prevCardId) => (prevCardId === trailId ? null : trailId)); // Toggle active card
   };
 
-  const CustomToggle = React.forwardRef(({ onClick }, ref) => (
-    <div
-      ref={ref}
-      onClick={(e) => {
-        e.preventDefault();
-        onClick(e);
-      }}
-      style={{ cursor: 'pointer' }}
-    >
-      <BiDotsVerticalRounded size={24} />
-    </div>
-  ));
+  const handleRemove = async (userId, trailId) => {
+    try {
+      await deleteFavoriteTrail(userId, trailId);
+      setFavoriteTrails((prevTrails) =>
+        prevTrails.filter((trail) => trail.trail.trailId !== trailId)
+      );
+      alert('Trail removed from favorites!');
+    } catch (error) {
+      console.error('Error removing trail:', error);
+      alert('Failed to remove the trail. Please try again.');
+    }
+  };
+
+  const formatSentiments = (sentiments) => {
+    if (!sentiments) return "No sentiments available.";
+
+    const sentimentItems = sentiments
+      .split(/\d+\.\s/)
+      .filter((item) => item.trim() !== "");
+
+    return (
+      <ul>
+        {sentimentItems.map((item, index) => {
+          const [key, ...rest] = item.trim().split(":");
+          return (
+            <li key={index}>
+              <strong>{key}:</strong>
+              {rest.join(":")}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
 
   if (loading) {
     return (
@@ -68,56 +95,67 @@ const Favorite = () => {
   return (
     <Container fluid className="mt-4">
       <h2>Favorites</h2>
-      <div
-        style={{
-          height: '80vh',
-          overflowY: 'auto',
-          border: '1px solid #ccc',
-          padding: '20px',
-        }}
-      >
-        {favoriteTrails.length > 0 ? (
-          <Row xs={1} md={2} className="g-4">
-            {favoriteTrails.map((trail) => (
-              <Col key={trail.trail.trailId}>
-                <Card className="h-100 position-relative">
-                  {/* Dropdown Positioned Top-Right */}
-                  <Dropdown className="position-absolute top-0 end-0 m-2">
-                    <Dropdown.Toggle as={CustomToggle} id={`dropdown-${trail.trail.trailId}`} />
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => handleRemove(trail.trail.trailId)}>
-                        Remove
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  <Row className="g-0 align-items-center">
-                    <Col xs={4}>
-                      <Card.Img
-                        src={ trail.trailImages?.[0]?.imageUrl || 'https://via.placeholder.com/150'}
-                        className="img-fluid"
-                        style={{ objectFit: 'cover', height: '100%' }}
+      <div className="favorites-container">
+        <Row xs={1} md={3} lg={4} className="g-3">
+          {favoriteTrails.map((trail) => (
+            <Col key={trail.trail.trailId}>
+              <div
+                className={`flip-card ${
+                  activeCardId === trail.trail.trailId ? 'flipped' : ''
+                }`}
+                onClick={() => handleFlip(trail.trail.trailId)}
+              >
+                <div className="flip-card-inner">
+                  {/* Front Side */}
+                  <div className="flip-card-front">
+                    <div className="card-content">
+                      <img
+                        src={trail.trailImages?.[0]?.imageUrl || 'https://via.placeholder.com/150'}
+                        alt="Trail"
+                        className="card-image"
                       />
-                    </Col>
-                    <Col xs={8}>
-                      <Card.Body>
-                        <Card.Title>{trail.trail.name}</Card.Title>
-                        <Card.Text>
-                          {trail.trail.description || 'No description available.'}
-                        </Card.Text>
-                      </Card.Body>
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          <p>No favorite trails found.</p>
-        )}
+                      <h5 className="card-title">{trail.trail.name || 'Unknown Trail'}</h5>
+                    </div>
+                  </div>
+
+                  {/* Back Side */}
+                  <div className="flip-card-back">
+                    <div
+                      className="card-content"
+                      ref={(el) => (contentRefs.current[trail.trail.trailId] = el)} // Assign ref for scroll control
+                    >
+                      <h5 className="back-card-title">
+                        {trail.trail.name || 'Unknown Trail'}
+                      </h5>
+                      <p className="card-description">
+                        {trail.trail.description || 'No description available.'}
+                      </p>
+                      <p className="card-sentiments">
+                        <strong>Sentiments:</strong>
+                        {formatSentiments(trail.trail.sentiments)}
+                      </p>
+                      <Button
+                        variant="danger"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemove(user.id, trail.trail.trailId);
+                        }}
+                        style={{ marginTop: '10px' }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Col>
+          ))}
+        </Row>
       </div>
     </Container>
   );
 };
 
 export default Favorite;
+
+
