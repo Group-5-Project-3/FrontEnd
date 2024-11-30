@@ -10,7 +10,7 @@ const Favorite = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeCardId, setActiveCardId] = useState(null);
-  const contentRefs = useRef({}); // Store references to the card content elements
+  const contentRefs = useRef({}); 
 
   useEffect(() => {
     const fetchFavoriteTrails = async () => {
@@ -31,12 +31,11 @@ const Favorite = () => {
   }, [user]);
 
   const handleFlip = (trailId) => {
-    // Reset the scroll of the previously active card's back content
     if (activeCardId && contentRefs.current[activeCardId]) {
-      contentRefs.current[activeCardId].scrollTop = 0; // Reset scroll to top
+      contentRefs.current[activeCardId].scrollTop = 0;
     }
 
-    setActiveCardId((prevCardId) => (prevCardId === trailId ? null : trailId)); // Toggle active card
+    setActiveCardId((prevCardId) => (prevCardId === trailId ? null : trailId));
   };
 
   const handleRemove = async (userId, trailId) => {
@@ -62,11 +61,12 @@ const Favorite = () => {
     return (
       <ul>
         {sentimentItems.map((item, index) => {
-          const [key, ...rest] = item.trim().split(":");
+          const cleanedItem = item.replace(/\*\*/g, "");
+          const [boldPart, ...rest] = cleanedItem.split(":");
           return (
             <li key={index}>
-              <strong>{key}:</strong>
-              {rest.join(":")}
+              <strong>{boldPart.trim()}</strong>
+              {rest.length > 0 ? `: ${rest.join(":").trim()}` : ""}
             </li>
           );
         })}
@@ -122,7 +122,7 @@ const Favorite = () => {
                   <div className="flip-card-back">
                     <div
                       className="card-content"
-                      ref={(el) => (contentRefs.current[trail.trail.trailId] = el)} // Assign ref for scroll control
+                      ref={(el) => (contentRefs.current[trail.trail.trailId] = el)}
                     >
                       <h5 className="back-card-title">
                         {trail.trail.name || 'Unknown Trail'}
