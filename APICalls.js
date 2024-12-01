@@ -258,8 +258,11 @@ export const deleteCheckIn = async (id) => {
 };
 
 export const getTrailByPlacesId = async (placesId) => {
+  console.log("in getTrailByPlacesId...");
+  console.log("passed in placesId: ", placesId);
   try {
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+    console.log("token in getTrailByPlacesId: ", token);
 
     const response = await axios.get(
       `https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/places/${placesId}`,
@@ -270,10 +273,13 @@ export const getTrailByPlacesId = async (placesId) => {
         },
       }
     );
+    console.log("no error: returning res data...");
     return response.data;
   } catch (error) {
-    console.error(`Error fetching trail with places ID ${placesId}:`, error);
-    throw error;
+    // console.error(`Error fetching trail with places ID ${placesId}:`, error);
+    // throw error;
+    console.log("error: returning null...");
+    return null;
   }
 };
 

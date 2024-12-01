@@ -21,7 +21,9 @@ import { checkIfTrailExist, decodeJWT } from "./utils/utils";
 import {
   addFavoriteTrail,
   createReview,
+  createTrail,
   findUserByUserId,
+  getTrailByPlacesId,
   getTrailReviews,
 } from "../../APICalls";
 import { TextInput } from "react-native";
@@ -162,30 +164,82 @@ const MapComponent = () => {
     //test
   }, []);
 
-  useEffect(() => {
-    console.log("selectedPlace changed:", selectedPlace);
+  // useEffect(() => {
+  //   // console.log("selectedPlace changed:", selectedPlace);
 
-    const fetchTrailId = async () => {
-      console.log("In fetchTrailId");
-      console.log("SelectedPlace:", selectedPlace);
+  //   const fetchTrailId = async () => {
+  //     console.log("In fetchTrailId");
+  //     console.log("SelectedPlace:", selectedPlace);
+  //     console.log("palce id:", selectedPlace.place_id);
 
-      if (selectedPlace) {
-        console.log("Fetching trail ID for:", selectedPlace);
-        try {
-          const trailInfo = await checkIfTrailExist(
-            selectedPlace.place_id,
-            selectedPlace
-          );
-          console.log("Trail ID retrieved:", trailInfo.trailId);
-          setTrailId(trailInfo.trailId);
-        } catch (error) {
-          console.error("Error fetching trail info:", error);
-        }
+  //     if (selectedPlace) {
+  //       console.log("Fetching trail ID:");
+  //       try {
+  //         const trailInfo = await checkIfThisTrailExist(
+  //           selectedPlace.place_id,
+  //           selectedPlace
+  //         );
+  //         console.log("Trail ID retrieved:", trailInfo.trailId);
+  //         setTrailId(trailInfo.trailId);
+  //       } catch (error) {
+  //         console.error("Error fetching trail info:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchTrailId();
+  // }, [selectedPlace]);
+
+  const fetchTrailId = async (id, place) => {
+    console.log("In fetchTrailId");
+    console.log("palce:", id);
+    console.log("palce id:", place);
+
+    if (place) {
+      try {
+        console.log("going to checkIfThisTrailExist...");
+        const trailInfo = await checkIfThisTrailExist(id, place);
+        console.log("Trail ID retrieved:", trailInfo.trailId);
+        setTrailId(trailInfo.trailId);
+      } catch (error) {
+        console.error("Error fetching trail info:", error);
       }
-    };
+    }
+  };
 
-    fetchTrailId();
-  }, [selectedPlace]);
+  const checkIfThisTrailExist = async (place_id, place) => {
+    console.log("in checkIfThisTrailExist");
+    console.log("place_id passed in: ", place_id);
+    console.log("palce passed in: ", place);
+    const token = await AsyncStorage.getItem("@auth_token");
+    console.log("token: ", token);
+    try {
+      // Await the result of getTrailByPlacesId
+      console.log("going to getTrailByPlacesId...");
+      const trail = await getTrailByPlacesId(place_id);
+      console.log("trail variable: ", trail);
+      if (trail != null) {
+        return trail;
+      } else {
+        console.log(
+          `Trail with place_id ${place_id} not found. Creating a new trail.`
+        );
+        const newTrail = {
+          placesId: place_id,
+          name: place.name,
+          location: place.vicinity,
+          description: "New review",
+        };
+        // MIGHT CAUSE ERROR IF NEW TRAIL IS CREATE AND DOES NOT HAVE IMAGE FIELD
+        return await createTrail(newTrail); // Call the createTrail function to add it to the database
+      }
+    } catch (error) {
+      console.log("back in checkIfThisTrailExist, was null");
+      // For any other errors, log and re-throw
+      console.error("An unexpected error occurred:", error.message);
+      throw error;
+    }
+  };
 
   const fetchNearbyPlaces = async (latitude, longitude) => {
     const apiKey = "AIzaSyBnst1HITYqMUngjdlU5bqarqkHvFG2Emc"; // Replace with your actual API key
@@ -231,7 +285,7 @@ const MapComponent = () => {
     }
   };
 
-  const parkPressed = (name, id, lat, long, place) => {
+  const parkPressed = async (name, id, lat, long, place) => {
     // alert(
     //   "park pressed, id: " + id,
     //   +" name: " + name + " lat & long: " + lat,
@@ -244,6 +298,7 @@ const MapComponent = () => {
     setModalLong(long);
     setModalVisible(true);
     setSelectedPlace(place);
+    await fetchTrailId(id, place);
     console.log("done with press");
   };
 
@@ -493,7 +548,7 @@ const styles = StyleSheet.create({
   markerContainer: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "brown",
+    // backgroundColor: "brown",
     margin: 0,
   },
   markerImage: {
