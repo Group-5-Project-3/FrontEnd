@@ -1,0 +1,198 @@
+/* Scrollable Container */
+.milestone-scrollable-container {
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 1rem;
+    padding-bottom: 3rem; /* Extra padding at the bottom to prevent cut-off */
+    background-color: #ffffff; /* Clean white background */
+    box-sizing: border-box; /* Ensures padding is included in height calculations */
+}
+
+/* Badge Group */
+.badge-group {
+    margin-bottom: 30px;
+    min-height: 100px; /* Ensure groups have enough space, even when filtered */
+}
+
+/* Badge Group Title */
+.badge-group-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Badge Card */
+.badge-card {
+    width: 100%;
+    text-align: left;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: white;
+}
+
+/* Horizontal Layout */
+.card-horizontal-layout {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Image Container */
+.card-horizontal-image-container {
+    flex-shrink: 0;
+    width: 100px; /* Fixed width for consistent image size */
+    height: 100px; /* Fixed height for consistent image size */
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+/* Image Styling */
+.card-horizontal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure the image fills the container without distortion */
+    border-radius: 8px;
+}
+
+/* Grayscale for incomplete badges */
+.card-horizontal-image.grayscale {
+    filter: grayscale(100%);
+    opacity: 0.6; /* Optional: slightly reduce visibility for incomplete badges */
+}
+
+/* Badge Details */
+.card-horizontal-details {
+    margin-left: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+/* Badge Title Styling */
+.badge-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+    line-height: 1.2;
+    white-space: normal; /* Allows wrapping */
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Badge Status Styling */
+.badge-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 5px;
+    color: inherit;
+    line-height: 1.2;
+}
+
+/* Completed and Incomplete Colors */
+.badge-status.completed {
+    color: green;
+}
+
+.badge-status.incomplete {
+    color: red;
+}
+
+/* Ensure badge container handles filtered content properly */
+.badge-container {
+    min-height: 150px; /* Guarantees space for filtered badges */
+    padding-bottom: 2rem; /* Ensures badges are visible when filtering */
+}
+
+/* Milestones Section */
+.milestones-section {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+/* Milestone Title */
+.milestones-section h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* Milestone Cards Container */
+.milestone-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Individual Milestone Card */
+.milestone-card {
+    width: 250px;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    background-color: #ffffff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.milestone-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Milestone Icon */
+.milestone-icon {
+    font-size: 2.5rem;
+    color: #007bff; /* Blue color for icons */
+    margin-bottom: 1rem;
+}
+
+/* Milestone Label */
+.milestone-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+/* Milestone Value */
+.milestone-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Filter Select Dropdown */
+#filterSelect {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    display: block;
+}
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  

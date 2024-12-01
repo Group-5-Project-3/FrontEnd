@@ -12,6 +12,7 @@ export const getTrailReviews = async (trailId) => {
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
             },
         });
+        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("Error fetching trail reviews:", error.response?.data || error.message);

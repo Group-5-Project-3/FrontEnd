@@ -43,24 +43,30 @@ export const addFavoriteTrail = async (userId, trailId) => {
     }
 };
 
-// DELETE a favorite trail by ID
-export const deleteFavoriteTrail = async (id) => {
+// DELETE favorite trail by userId and trailId
+export const deleteFavoriteTrail = async (userId, trailId) => {
     try {
-        const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
-
-        const response = await axios.delete(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/favorites/${id}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`, // Add the token as a bearer token
-            },
-        });
-        return response.data; // Modify based on the API's delete response
+        const token = localStorage.getItem('auth_token');
+        
+        const response = await axios.delete(
+            `https://cst438project3-6ec60cdacb89.herokuapp.com/api/favorites`,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                params: {
+                    userId,
+                    trailId,
+                },
+            }
+        );
+        return response.data;
     } catch (error) {
-        console.error("Error deleting favorite trail:", error);
+        console.error("Error deleting favorite trail:", error.response?.data || error.message);
         throw error;
     }
 };
-
 
 // GET favorite trails by user ID
 export const getFavoriteTrailsWithImages = async (userId) => {

@@ -1,0 +1,195 @@
+/* General Modal Styling */
+.place-modal .modal-dialog {
+    max-width: 900px; /* Increased modal width */
+    width: 90%; /* Default responsiveness without media queries */
+}
+
+.place-modal .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.place-modal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 16px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.place-modal .modal-title {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.place-modal .modal-body {
+    padding: 20px;
+}
+
+.place-modal .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 16px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* Image Carousel Styling */
+.place-modal .carousel img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+}
+
+.place-modal .carousel-indicators [data-bs-target] {
+    background-color: #007bff;
+}
+
+.place-modal .carousel-control-prev-icon,
+.place-modal .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+}
+
+/* Location Info */
+.place-modal .location-info {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Accordion Styling */
+.place-modal .accordion-button {
+    font-weight: bold;
+    color: #007bff;
+    background-color: #f8f9fa;
+    border: none;
+}
+
+.place-modal .accordion-button:focus {
+    box-shadow: none;
+}
+
+.place-modal .accordion-item {
+    border: none;
+}
+
+.place-modal .accordion-body {
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Buttons Styling */
+.place-modal .btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.place-modal .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.place-modal .btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.place-modal .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.place-modal .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.place-modal .btn:hover {
+    opacity: 0.9;
+}
+
+/* Tabs Styling */
+.place-modal .nav-tabs {
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.place-modal .nav-tabs .nav-link {
+    color: #007bff;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    background: #f8f9fa;
+    text-align: center;
+}
+
+.place-modal .nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+}
+
+/* Review Cards Styling */
+.review-cards {
+    margin-top: 20px;
+}
+
+.review-card {
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.review-card .card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.review-card .card-text {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.review-card .star-ratings {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.custom-button {
+    background-color: #4caf50; /* Green */
+    border-color: #4caf50;
+    color: white;
+  }
+  
+  .custom-button:hover {
+    background-color: #45a049; /* Slightly darker green */
+    border-color: #45a049;
+  }
+  
+  .custom-button:focus {
+    box-shadow: 0 0 5px #4caf50; /* Glow effect */
+  }
+  
+
+  
+  
