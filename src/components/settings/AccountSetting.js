@@ -1,19 +1,37 @@
-import React, { useState, useRef } from 'react';
-import { Button, Form, Card, Image, Row, Col, Container } from 'react-bootstrap';
-import useSettingsActions from './SettingsActions';
+import React, { useState, useRef } from "react";
+import {
+  Button,
+  Form,
+  Card,
+  Image,
+  Row,
+  Col,
+  Container,
+} from "react-bootstrap";
+import useSettingsActions from "./SettingsActions";
+import { ChangePasswordModal } from "./ChangePasswordModal";
 
 const AccountSettings = ({ user }) => {
-  const { editName, editUsername, editEmail, editUserAvatar, changePassword, deleteAccount } = useSettingsActions();
+  const {
+    editName,
+    editUsername,
+    editEmail,
+    editUserAvatar,
+    changePassword,
+    deleteAccount,
+  } = useSettingsActions();
 
   const [isEditingName, setIsEditingName] = useState(false);
-  const [firstNameInput, setFirstNameInput] = useState(user?.firstName || '');
-  const [lastNameInput, setLastNameInput] = useState(user?.lastName || '');
+  const [firstNameInput, setFirstNameInput] = useState(user?.firstName || "");
+  const [lastNameInput, setLastNameInput] = useState(user?.lastName || "");
 
   const [isEditingUsername, setIsEditingUsername] = useState(false);
-  const [usernameInput, setUsernameInput] = useState(user?.username || '');
+  const [usernameInput, setUsernameInput] = useState(user?.username || "");
 
   const [isEditingEmail, setIsEditingEmail] = useState(false);
-  const [emailInput, setEmailInput] = useState(user?.email || '');
+  const [emailInput, setEmailInput] = useState(user?.email || "");
+
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const fileInputRef = useRef();
 
@@ -28,15 +46,14 @@ const AccountSettings = ({ user }) => {
     fileInputRef.current.click();
   };
 
-
   const handleSaveName = () => {
     editName(firstNameInput, lastNameInput);
     setIsEditingName(false);
   };
 
   const handleCancelEditName = () => {
-    setFirstNameInput(user?.firstName || '');
-    setLastNameInput(user?.lastName || '');
+    setFirstNameInput(user?.firstName || "");
+    setLastNameInput(user?.lastName || "");
     setIsEditingName(false);
   };
 
@@ -46,7 +63,7 @@ const AccountSettings = ({ user }) => {
   };
 
   const handleCancelEditUsername = () => {
-    setUsernameInput(user?.username || '');
+    setUsernameInput(user?.username || "");
     setIsEditingUsername(false);
   };
 
@@ -56,7 +73,7 @@ const AccountSettings = ({ user }) => {
   };
 
   const handleCancelEditEmail = () => {
-    setEmailInput(user?.email || '');
+    setEmailInput(user?.email || "");
     setIsEditingEmail(false);
   };
 
@@ -64,13 +81,12 @@ const AccountSettings = ({ user }) => {
     return <p>Loading user data...</p>;
   }
 
-
   return (
     <Container
       style={{
-        backgroundColor: '#1b4332', // Forest green background
-        minHeight: '100vh',
-        padding: '20px'
+        backgroundColor: "#1b4332", // Forest green background
+        minHeight: "100vh",
+        padding: "20px",
       }}
       fluid
     >
@@ -78,9 +94,9 @@ const AccountSettings = ({ user }) => {
       <Card
         className="mb-4 shadow-sm"
         style={{
-          backgroundColor: '#2d6a4f', // Darker green for cards
-          color: '#ffffff',
-          border: 'none',
+          backgroundColor: "#2d6a4f", // Darker green for cards
+          color: "#ffffff",
+          border: "none",
         }}
       >
         <Card.Body>
@@ -105,8 +121,8 @@ const AccountSettings = ({ user }) => {
                 variant="light"
                 onClick={triggerFileInput}
                 style={{
-                  color: '#1b4332',
-                  backgroundColor: '#a8dadc',
+                  color: "#1b4332",
+                  backgroundColor: "#a8dadc",
                 }}
               >
                 Edit Avatar
@@ -116,7 +132,7 @@ const AccountSettings = ({ user }) => {
                 accept="image/*"
                 onChange={handleAvatarUpload}
                 ref={fileInputRef}
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
               />
             </Col>
           </Row>
@@ -127,9 +143,9 @@ const AccountSettings = ({ user }) => {
       <Card
         className="mb-4 shadow-sm"
         style={{
-          backgroundColor: '#2d6a4f', // Matching card color
-          color: '#ffffff',
-          border: 'none',
+          backgroundColor: "#2d6a4f", // Matching card color
+          color: "#ffffff",
+          border: "none",
         }}
       >
         <Card.Body>
@@ -142,14 +158,14 @@ const AccountSettings = ({ user }) => {
             onSave={handleSaveName}
             fields={[
               {
-                type: 'text',
-                placeholder: 'First Name',
+                type: "text",
+                placeholder: "First Name",
                 value: firstNameInput,
                 onChange: setFirstNameInput,
               },
               {
-                type: 'text',
-                placeholder: 'Last Name',
+                type: "text",
+                placeholder: "Last Name",
                 value: lastNameInput,
                 onChange: setLastNameInput,
               },
@@ -165,8 +181,8 @@ const AccountSettings = ({ user }) => {
             onSave={handleSaveUsername}
             fields={[
               {
-                type: 'text',
-                placeholder: 'Username',
+                type: "text",
+                placeholder: "Username",
                 value: usernameInput,
                 onChange: setUsernameInput,
               },
@@ -182,8 +198,8 @@ const AccountSettings = ({ user }) => {
             onSave={handleSaveEmail}
             fields={[
               {
-                type: 'email',
-                placeholder: 'Email',
+                type: "email",
+                placeholder: "Email",
                 value: emailInput,
                 onChange: setEmailInput,
               },
@@ -196,9 +212,9 @@ const AccountSettings = ({ user }) => {
       <Card
         className="shadow-sm"
         style={{
-          backgroundColor: '#2d6a4f', // Matching card color
-          color: '#ffffff',
-          border: 'none',
+          backgroundColor: "#2d6a4f", // Matching card color
+          color: "#ffffff",
+          border: "none",
         }}
       >
         <Card.Body>
@@ -207,14 +223,19 @@ const AccountSettings = ({ user }) => {
               <Button
                 variant="light"
                 className="w-100 mb-2"
-                onClick={changePassword}
+                onClick={() => setShowChangePasswordModal(true)}
                 style={{
-                  color: '#1b4332', // Forest green text
-                  backgroundColor: '#a8dadc', // Button color for contrast
+                  color: "#1b4332", // Forest green text
+                  backgroundColor: "#a8dadc", // Button color for contrast
                 }}
               >
                 Change Password
               </Button>
+
+              <ChangePasswordModal
+                show={showChangePasswordModal}
+                onClose={() => setShowChangePasswordModal(false)}
+              />
             </Col>
             <Col md={6}>
               <Button
@@ -222,8 +243,8 @@ const AccountSettings = ({ user }) => {
                 className="w-100"
                 onClick={deleteAccount}
                 style={{
-                  backgroundColor: '#d00000', // Red for delete button
-                  color: '#ffffff',
+                  backgroundColor: "#d00000", // Red for delete button
+                  color: "#ffffff",
                 }}
               >
                 Delete Account
@@ -236,7 +257,15 @@ const AccountSettings = ({ user }) => {
   );
 };
 
-const EditableField = ({ label, isEditing, value, onEdit, onCancel, onSave, fields }) => (
+const EditableField = ({
+  label,
+  isEditing,
+  value,
+  onEdit,
+  onCancel,
+  onSave,
+  fields,
+}) => (
   <div className="mb-4">
     <h6 className="text-light">{label}</h6>
     {isEditing ? (

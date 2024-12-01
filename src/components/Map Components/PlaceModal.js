@@ -93,7 +93,6 @@ const PlaceModal = ({ isOpen, onClose, place = {}, currentLocation }) => {
         console.error('Error fetching trail data:', error);
       }
     };
-
     fetchTrailData();
   }, [isOpen, place]);
 

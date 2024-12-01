@@ -96,6 +96,33 @@ export const updateUser = async (id, { username, email, firstName, lastName, pas
     }
 };
 
+// Find User ID by username function
+export const deleteUserById = async (id) => {
+    try {
+        // Retrieve the token from localStorage
+        const token = localStorage.getItem('auth_token');
+        
+        if (!token) {
+            throw new Error('No token found. Please log in.');
+        }
+
+        const response = await axios.delete(`https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}` // Use token if the endpoint requires authentication
+            }
+        });
+        return response.data; // This should be the user ID
+    } catch (error) {
+        if (error.response && error.response.status === 404) {
+            console.log('User not found');
+        } else {
+            console.error('Error fetching user ID:', error);
+        }
+        throw error;
+    }
+};
+
 export const uploadProfilePicture = async (userId, file) => {
     try {
         // Create a FormData object to handle the file upload
@@ -103,8 +130,6 @@ export const uploadProfilePicture = async (userId, file) => {
         formData.append('file', file); // Match backend's expectation
 
         const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
-
-        console.log(token);
 
         // Make the POST request
         const response = await axios.post(
