@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { GoogleMap, MarkerF, LoadScriptNext } from "@react-google-maps/api";
 import PlaceModal from "./PlaceModal";
-import { Button, Spinner } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import { getNearbyParks } from "../APICalls";
 
 const containerStyle = {
@@ -49,6 +49,7 @@ const MapComponent = ({
   };
 
   const handleMarkerClick = (place) => {
+    console.log(place);
     setSelectedPlace(place);
   };
 

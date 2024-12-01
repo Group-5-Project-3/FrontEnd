@@ -22,6 +22,7 @@ const PlaceModal = ({ isOpen, onClose, place, currentLocation }) => {
       if (isOpen && place) {
         try {
           const trailInfo = await checkIfTrailExist(place.place_id, place);
+          console.log(trailInfo)
           setTrailId(trailInfo.trailId);
           // Fetch trail images
           const trailImages = await getImagesByTrailId(trailInfo.trailId);
