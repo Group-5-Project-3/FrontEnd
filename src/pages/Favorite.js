@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../AuthContext';
-import { getFavoriteTrailsWithImages } from '../components/APICalls/FavoriteController';
-import { Card, Row, Col, Container, Dropdown } from 'react-bootstrap';
-import { BiDotsVerticalRounded } from 'react-icons/bi';
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../AuthContext";
+import { getFavoriteTrailsWithImages } from "../components/APICalls/FavoriteController";
+import { Card, Row, Col, Container, Dropdown } from "react-bootstrap";
+import { BiDotsVerticalRounded } from "react-icons/bi";
 
 const Favorite = () => {
   const { user } = useContext(AuthContext); // Get the user from context
@@ -20,7 +20,7 @@ const Favorite = () => {
         setFavoriteTrails(trails);
         console.log(trails);
       } catch (err) {
-        setError('Failed to fetch favorite trails.');
+        setError("Failed to fetch favorite trails.");
       } finally {
         setLoading(false);
       }
@@ -41,7 +41,7 @@ const Favorite = () => {
         e.preventDefault();
         onClick(e);
       }}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: "pointer" }}
     >
       <BiDotsVerticalRounded size={24} />
     </div>
@@ -70,10 +70,10 @@ const Favorite = () => {
       <h2>Favorites</h2>
       <div
         style={{
-          height: '80vh',
-          overflowY: 'auto',
-          border: '1px solid #ccc',
-          padding: '20px',
+          height: "80vh",
+          overflowY: "auto",
+          border: "1px solid #ccc",
+          padding: "20px",
         }}
       >
         {favoriteTrails.length > 0 ? (
@@ -83,9 +83,14 @@ const Favorite = () => {
                 <Card className="h-100 position-relative">
                   {/* Dropdown Positioned Top-Right */}
                   <Dropdown className="position-absolute top-0 end-0 m-2">
-                    <Dropdown.Toggle as={CustomToggle} id={`dropdown-${trail.trail.trailId}`} />
+                    <Dropdown.Toggle
+                      as={CustomToggle}
+                      id={`dropdown-${trail.trail.trailId}`}
+                    />
                     <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => handleRemove(trail.trail.trailId)}>
+                      <Dropdown.Item
+                        onClick={() => handleRemove(trail.trail.trailId)}
+                      >
                         Remove
                       </Dropdown.Item>
                     </Dropdown.Menu>
@@ -94,16 +99,20 @@ const Favorite = () => {
                   <Row className="g-0 align-items-center">
                     <Col xs={4}>
                       <Card.Img
-                        src={ trail.trailImages?.[0]?.imageUrl || 'https://via.placeholder.com/150'}
+                        src={
+                          trail.trailImages?.[0]?.imageUrl ||
+                          "https://via.placeholder.com/150"
+                        }
                         className="img-fluid"
-                        style={{ objectFit: 'cover', height: '100%' }}
+                        style={{ objectFit: "cover", height: "100%" }}
                       />
                     </Col>
                     <Col xs={8}>
                       <Card.Body>
                         <Card.Title>{trail.trail.name}</Card.Title>
                         <Card.Text>
-                          {trail.trail.description || 'No description available.'}
+                          {trail.trail.description ||
+                            "No description available."}
                         </Card.Text>
                       </Card.Body>
                     </Col>
