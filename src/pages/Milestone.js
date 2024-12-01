@@ -70,12 +70,12 @@ const Milestone = () => {
             <div className="milestone-card">
               <div className="milestone-icon">📏</div>
               <div className="milestone-label">Total Distance</div>
-              <div className="milestone-value">{milestones.totalDistance.toFixed(2)} miles</div>
+              <div className="milestone-value">{milestones.totalDistance.toFixed(2)} kilometers</div>
             </div>
             <div className="milestone-card">
               <div className="milestone-icon">⛰️</div>
               <div className="milestone-label">Total Elevation Gain</div>
-              <div className="milestone-value">{milestones.totalElevationGain.toFixed(2)} feet</div>
+              <div className="milestone-value">{milestones.totalElevationGain.toFixed(2)} meters</div>
             </div>
             <div className="milestone-card">
               <div className="milestone-icon">🏞️</div>
