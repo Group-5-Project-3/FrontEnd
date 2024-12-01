@@ -20,8 +20,17 @@ const Profile = () => {
   const [editFirst, setEditFirst] = useState("");
   const [editLast, setEditLast] = useState("");
   const [profilePic, setProfilePic] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [newEmail, setNewEmail] = useState(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [editUserName, setEditUsername] = useState("");
+
+  const [passwordModal, setPasswordModal] = useState(false);
 
   const [nameModal, setNameModal] = useState(false);
+  const [emailModal, setEmailModal] = useState(false);
+  const [usernameModal, setUsernameModal] = useState(false);
 
   useEffect(() => {
     console.log("in profile");
@@ -49,6 +58,8 @@ const Profile = () => {
           setUserLast(userInfo.lastName);
           setEditFirst(userInfo.firstName);
           setEditLast(userInfo.lastName);
+          setEmail(userInfo.email);
+          setNewEmail(userInfo.email);
 
           //   setProfilePic("../assets/blank_pfp.png");
 
@@ -101,6 +112,107 @@ const Profile = () => {
     setNameModal(false);
   };
 
+  const editEmail = () => {
+    console.log("in edit email");
+    console.log("new email entered: ", newEmail);
+    const user = {
+      username: null,
+      email: newEmail,
+      firstName: null,
+      lastName: null,
+      password: null,
+    };
+
+    try {
+      const res = updateUser(userID, user);
+      console.log("updateUser response: ", res);
+      setEmail(newEmail);
+      setEmailModal(false);
+      alert("Email Was Updated");
+    } catch (error) {
+      setEditFirst(userFirst);
+      setEditLast(userLast);
+      console.error("Error when trying to update email: ", error);
+    }
+  };
+
+  //test;
+  const closeEmailModal = () => {
+    setNewEmail(email);
+    setEmailModal(false);
+  };
+
+  const closePasswordModal = () => {
+    setNewPassword("");
+    setConfirmNewPassword("");
+    setPasswordModal(false);
+  };
+
+  const closeEditUsername = () => {
+    setEditUsername(username);
+    setUsernameModal(false);
+  };
+
+  const handleEditUsername = () => {
+    console.log("in handleEditUsername");
+    console.log("new username: ", editUserName);
+    const user = {
+      username: editUserName,
+      email: null,
+      firstName: null,
+      lastName: null,
+      password: null,
+    };
+
+    try {
+      const res = updateUser(userID, user);
+      console.log("updateUser response: ", res);
+      setUsername(editUserName);
+      setUsernameModal(false);
+      alert("Username Was Updated");
+    } catch (error) {
+      setEditUsername("");
+      console.error("Error when trying to update username: ", error);
+    }
+  };
+
+  const handleNewPassword = () => {
+    console.log("in handleNewPassword");
+    console.log("new pass: ", newPassword);
+    console.log("confirm new pass:", confirmNewPassword);
+    console.log(newPassword === confirmNewPassword);
+
+    if (newPassword === confirmNewPassword) {
+      const user = {
+        username: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+        password: newPassword,
+      };
+
+      try {
+        const res = updateUser(userID, user);
+        console.log("updateUser response: ", res);
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setPasswordModal(false);
+        alert("Password Was Updated");
+      } catch (error) {
+        setNewPassword("");
+        setConfirmNewPassword("");
+        console.error("Error when trying to update password: ", error);
+      }
+    } else {
+      alert("Passwords Do Not Match");
+    }
+  };
+
+  const openEditUsername = () => {
+    setEditUsername(username);
+    setUsernameModal(true);
+  };
+
   //test
 
   return (
@@ -148,7 +260,7 @@ const Profile = () => {
             <Text style={styles.sectionLabel}>Username</Text>
             <Text style={styles.sectionValue}>@{username}</Text>
           </View>
-          <Pressable style={styles.editButton}>
+          <Pressable style={styles.editButton} onPress={openEditUsername}>
             <Text style={styles.editButtonText}>Edit</Text>
           </Pressable>
         </View>
@@ -157,10 +269,13 @@ const Profile = () => {
           <View style={styles.sectionContent}>
             <Text style={styles.sectionLabel}>Email</Text>
             <Text style={styles.sectionValue}>
-              {userData?.email || "example@email.com"}
+              {email || "example@email.com"}
             </Text>
           </View>
-          <Pressable style={styles.editButton}>
+          <Pressable
+            style={styles.editButton}
+            onPress={() => setEmailModal(true)}
+          >
             <Text style={styles.editButtonText}>Edit</Text>
           </Pressable>
         </View>
@@ -170,7 +285,10 @@ const Profile = () => {
             <Text style={styles.sectionLabel}>Password</Text>
             <Text style={styles.sectionValue}>●●●●●●●●</Text>
           </View>
-          <Pressable style={styles.editButton}>
+          <Pressable
+            style={styles.editButton}
+            onPress={() => setPasswordModal(true)}
+          >
             <Text style={styles.editButtonText}>Edit</Text>
           </Pressable>
         </View>
@@ -204,6 +322,7 @@ const Profile = () => {
               style={styles.inputText}
               value={editFirst}
               onChangeText={setEditFirst}
+              autoCapitalize="none"
             />
 
             <View style={styles.lineSeprator}></View>
@@ -215,9 +334,123 @@ const Profile = () => {
               style={styles.inputText}
               value={editLast}
               onChangeText={setEditLast}
+              autoCapitalize="none"
             />
           </SafeAreaView>
           <Pressable style={styles.modalActionButton} onPress={editName}>
+            <Text style={styles.bottomViewText}>Change</Text>
+          </Pressable>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={emailModal}
+        onRequestClose={() => setEmailModal(false)}
+      >
+        <SafeAreaView style={styles.modalBackground}>
+          <View style={styles.modalTopContainer}>
+            <Pressable onPress={closeEmailModal}>
+              <Text style={styles.modalBackText}>Cancel</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.modalTitleText}>Edit Email</Text>
+
+          <SafeAreaView style={styles.inputContainer} height={"8%"}>
+            <Text style={styles.placeholderText}>Email</Text>
+            <TextInput
+              //   placeholder="First Name"
+              //   placeholderTextColor="#bfbfbf"
+              style={styles.inputText}
+              value={newEmail}
+              onChangeText={setNewEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+            />
+          </SafeAreaView>
+          <Pressable style={styles.modalActionButton} onPress={editEmail}>
+            <Text style={styles.bottomViewText}>Change</Text>
+          </Pressable>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={passwordModal}
+        onRequestClose={() => setPasswordModal(false)}
+      >
+        <SafeAreaView style={styles.modalBackground}>
+          <View style={styles.modalTopContainer}>
+            <Pressable onPress={closePasswordModal}>
+              <Text style={styles.modalBackText}>Cancel</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.modalTitleText}>Change Password</Text>
+
+          <SafeAreaView style={styles.inputContainer}>
+            <Text style={styles.placeholderText}>New Password</Text>
+            <TextInput
+              //   placeholder="First Name"
+              //   placeholderTextColor="#bfbfbf"
+              style={styles.inputText}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              autoCapitalize="none"
+            />
+
+            <View style={styles.lineSeprator}></View>
+
+            <Text style={styles.placeholderText}>Confirm Password</Text>
+            <TextInput
+              //   placeholder="First Name"
+              //   placeholderTextColor="#bfbfbf"
+              style={styles.inputText}
+              value={confirmNewPassword}
+              onChangeText={setConfirmNewPassword}
+              autoCapitalize="none"
+            />
+          </SafeAreaView>
+
+          <Pressable
+            style={styles.modalActionButton}
+            onPress={handleNewPassword}
+          >
+            <Text style={styles.bottomViewText}>Change</Text>
+          </Pressable>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={usernameModal}
+        onRequestClose={() => setUsernameModal(false)}
+      >
+        <SafeAreaView style={styles.modalBackground}>
+          <View style={styles.modalTopContainer}>
+            <Pressable onPress={closeEditUsername}>
+              <Text style={styles.modalBackText}>Cancel</Text>
+            </Pressable>
+          </View>
+          <Text style={styles.modalTitleText}>Edit Username</Text>
+
+          <SafeAreaView style={styles.inputContainer} height={"8%"}>
+            <Text style={styles.placeholderText}>Username</Text>
+            <TextInput
+              //   placeholder="First Name"
+              //   placeholderTextColor="#bfbfbf"
+              style={styles.inputText}
+              value={editUserName}
+              onChangeText={setEditUsername}
+              autoCapitalize="none"
+            />
+          </SafeAreaView>
+          <Pressable
+            style={styles.modalActionButton}
+            onPress={handleEditUsername}
+          >
             <Text style={styles.bottomViewText}>Change</Text>
           </Pressable>
         </SafeAreaView>
