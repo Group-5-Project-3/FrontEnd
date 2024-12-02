@@ -17,12 +17,15 @@ import TreeLogo from "../../assets/TreeLogo.png";
 import { TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../AuthContext";
-import { checkIfTrailExist, decodeJWT } from "./utils/utils";
+import { calculateDistance, checkIfTrailExist, decodeJWT } from "./utils/utils";
 import {
   addFavoriteTrail,
+  createCheckIn,
   createReview,
   createTrail,
+  deleteFavoriteTrail,
   findUserByUserId,
+  getFavoriteTrailsByUserId,
   getTrailByPlacesId,
   getTrailReviews,
 } from "../../APICalls";
@@ -30,6 +33,7 @@ import { TextInput } from "react-native";
 import StarRating from "react-native-star-rating-widget";
 import { AirbnbRating } from "react-native-ratings";
 import { ScrollView } from "react-native";
+import { err } from "react-native-svg";
 
 const MapComponent = () => {
   const [userName, setUserName] = useState(null);
@@ -40,6 +44,8 @@ const MapComponent = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const [userLat, setUserLat] = useState(null);
+  const [userLong, setUserLong] = useState(null);
 
   const [places, setPlaces] = useState([]);
   const resolvedIcon = Asset.fromModule(TreeLogo).uri;
@@ -48,6 +54,12 @@ const MapComponent = () => {
   const [modalName, setModalName] = useState("");
   const [modalLong, setModalLong] = useState(0);
   const [modalLat, setModalLat] = useState(0);
+  const [modalRating, setModalRating] = useState(0);
+  const [modalPhoto, setModalPhoto] = useState(null);
+  const [modalAddress, setModalAddress] = useState(null);
+  const [modalDesc, setModalDesc] = useState(null);
+
+  const [favArr, setFavArr] = useState(null);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
 
@@ -61,6 +73,10 @@ const MapComponent = () => {
 
   const [rating, setRating] = useState(0);
   const [difficulty, setDifficulty] = useState(3);
+
+  const [descModal, setDescModal] = useState(false);
+  const [sentModal, setSentModal] = useState(false);
+  const [reviewsModal, setReviewsModal] = useState(false);
 
   const test_arr = [
     {
@@ -117,6 +133,7 @@ const MapComponent = () => {
           console.log("user info: ", userInfo);
           setUserID(userInfo.id);
           setUserName(userInfo.username);
+          getUserFavs();
           console.log("set user name and id to ", userName + " " + userID);
         }
 
@@ -149,6 +166,9 @@ const MapComponent = () => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
+
+      setUserLat(latitude);
+      setUserLong(longitude);
 
       fetchNearbyPlaces(latitude, longitude);
 
@@ -190,6 +210,11 @@ const MapComponent = () => {
   //   fetchTrailId();
   // }, [selectedPlace]);
 
+  const isFavorite = () => {
+    if (!favArr || favArr.length === 0) return false;
+    return favArr.some((fav) => fav.trailId === trailId);
+  };
+
   const fetchTrailId = async (id, place) => {
     console.log("In fetchTrailId");
     console.log("palce:", id);
@@ -201,6 +226,19 @@ const MapComponent = () => {
         const trailInfo = await checkIfThisTrailExist(id, place);
         console.log("Trail ID retrieved:", trailInfo.trailId);
         setTrailId(trailInfo.trailId);
+        console.log("trailInfo address: ", trailInfo.location);
+        setModalAddress(trailInfo.location);
+        console.log("trailInfo rating: ", trailInfo.avgRating);
+        setModalRating(trailInfo.avgRating);
+        console.log("trailInfo description: ", trailInfo.description);
+        setModalDesc(trailInfo.description);
+        console.log(
+          "trailInfo.images[0].imageUrl: ",
+          trailInfo.images[0].imageUrl
+        );
+        if (trailInfo.images[0].imageUrl) {
+          setModalPhoto(trailInfo.images[0].imageUrl);
+        }
       } catch (error) {
         console.error("Error fetching trail info:", error);
       }
@@ -302,31 +340,6 @@ const MapComponent = () => {
     console.log("done with press");
   };
 
-  // const fetchTrailId = async () => {
-  //   console.log("in fetchTrailId");
-  //   console.log("selectedPlace is: ", selectedPlace);
-  //   if (selectedPlace) {
-  //     console.log("in selectedPlace if");
-  //     try {
-  //       const trailInfo = await checkIfTrailExist(
-  //         selectedPlace.place_id,
-  //         selectedPlace
-  //       );
-  //       console.log("setting trailId to: ", trailInfo.trailId);
-  //       setTrailId(trailInfo.trailId);
-  // const trailImages = await getImagesByTrailId(trailInfo.trailId);
-  // if (trailImages == 0) {
-  //   setTrailImage("");
-  // } else {
-  //   setTrailImage(trailImages[0].imageUrl);
-  //   console.log(trailImages[0].imageUrl);
-  // }
-  //     } catch (error) {
-  //       console.error("Error fetching trail info:", error);
-  //     }
-  //   }
-  // };
-
   const submitReview = async () => {
     console.log("in submit review");
     console.log("user entered: ", userReview);
@@ -360,18 +373,73 @@ const MapComponent = () => {
     }
   };
 
-  const checkIn = () => {
-    alert("check in still being implemented");
+  const checkIn = async () => {
+    //alert("check in still being implemented");
+    console.log("in checkIn");
+
+    const distance = calculateDistance(userLat, userLong, modalLat, modalLong);
+    const threshold = 5000;
+
+    if (distance <= threshold) {
+      console.log("calling checkIn...");
+      const checkInData = {
+        trailId,
+        name: modalName,
+        userId: userID,
+      };
+
+      try {
+        const res = await createCheckIn(checkInData);
+        alert("Check-in successful!");
+      } catch {
+        console.alert("You already checked into this trail");
+      }
+    } else {
+      alert(`You are too far from ${modalName}. Move closer to check in!`);
+    }
   };
 
   const favorite = async (name, id) => {
-    alert("favorite in still being implemented");
+    // alert("favorite in still being implemented");
     console.log("place name: ", name);
-    console.log("place id: ", id);
+    console.log("trail id: ", id);
     console.log("user id: ", userID);
 
-    const favTrailData = await addFavoriteTrail(userID, id);
-    console.log("favorited trail data: ", favTrailData);
+    try {
+      const favTrailData = await addFavoriteTrail(userID, id);
+      console.log("favorited trail data: ", favTrailData);
+      console.log("resessting the fav arr...");
+      getUserFavs();
+    } catch {
+      alert("You Already Favorited This Trail");
+    }
+  };
+
+  const unfavorite = async (name, id) => {
+    // alert("favorite in still being implemented");
+    console.log("place name: ", name);
+    console.log("trail id: ", id);
+    console.log("user id: ", userID);
+
+    try {
+      const favTrailData = await deleteFavoriteTrail(userID, id);
+      console.log("unfavorited trail data: ", favTrailData);
+      console.log("resessting the fav arr...");
+      getUserFavs();
+    } catch {
+      alert("You Already Unfavorited This Trail");
+    }
+  };
+
+  const getUserFavs = async () => {
+    console.log("in getUserFavs...");
+    try {
+      const userFavArr = await getFavoriteTrailsByUserId(userID);
+      console.log("getFavoriteTrailsByUserId returned: ", userFavArr);
+      setFavArr(userFavArr);
+    } catch (error) {
+      console.log("error getting user favs: ", error);
+    }
   };
 
   const review = () => {
@@ -392,6 +460,32 @@ const MapComponent = () => {
     console.log("calling api...");
     const response = await getTrailReviews(modalID);
     console.log("response data: ", response);
+  };
+
+  const openDesc = async () => {
+    console.log("opening desc modal");
+  };
+
+  const openSent = async () => {
+    console.log("opening sent modal");
+  };
+
+  const openReviews = async () => {
+    console.log("opening reviews modal");
+  };
+
+  const handleCloseMdoal = async () => {
+    setModalID("");
+    setModalName("");
+    setModalLong(0);
+    setModalLat(0);
+    setModalRating(0);
+    setModalPhoto(null);
+    setModalAddress(null);
+    setModalDesc(null);
+    setSelectedPlace(null);
+    setTrailId(null);
+    setModalVisible(false);
   };
 
   return (
@@ -448,29 +542,63 @@ const MapComponent = () => {
             </Pressable>
           </View>
           <Text style={styles.modalTitleText}>{modalName}</Text>
-          {/* <View style={styles.lineSeprator}></View> */}
-          {/* <Text style={styles.modalTitleText}>ID: {modalID}</Text> */}
-          {/* <Text style={styles.modalTitleText}>Lat: {modalLat}</Text> */}
-          {/* <Text style={styles.modalTitleText}>Long: {modalLong}</Text> */}
+
+          <View style={styles.flexContainer}>
+            <Pressable onPress={openDesc}>
+              <Text style={styles.modalText}>Descripton</Text>
+            </Pressable>
+            <Pressable onPress={openSent}>
+              <Text style={styles.modalText}>Sentiments</Text>
+            </Pressable>
+            <Pressable onPress={openReviews}>
+              <Text style={styles.modalText}>Reviews</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.lineSeprator}></View>
+
+          <Text style={styles.locationText}>📍 {modalAddress}</Text>
+
+          {modalPhoto ? (
+            <Image
+              source={{ uri: modalPhoto }}
+              style={styles.modalImage} // Define styles for your image
+            />
+          ) : (
+            <Text style={styles.modalText}>Image does NOT exist</Text>
+          )}
+
+          {/* <View style={styles.lineSeprator} width="100%"></View> */}
+
           <Pressable onPress={checkIn} style={styles.modalActionButton}>
             <Text style={styles.bottomViewText}>Check In</Text>
           </Pressable>
-          <Pressable
-            onPress={() => favorite(modalName, modalID)}
-            style={styles.modalActionButton}
-          >
-            <Text style={styles.bottomViewText}>Favorite</Text>
-          </Pressable>
+
+          {isFavorite() ? (
+            <Pressable
+              onPress={() => unfavorite(modalName, trailId)}
+              style={styles.modalActionButton}
+            >
+              <Text style={styles.bottomViewText}>Unfavorite</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => favorite(modalName, trailId)}
+              style={styles.modalActionButton}
+            >
+              <Text style={styles.bottomViewText}>Favorite</Text>
+            </Pressable>
+          )}
+
           <Pressable onPress={review} style={styles.modalActionButton}>
             <Text style={styles.bottomViewText}>Review</Text>
           </Pressable>
 
-          <View style={styles.lineSeprator}></View>
           <Pressable onPress={getReviewsForPark}>
             <Text style={styles.reviewsText}>Reviews</Text>
           </Pressable>
 
-          <ScrollView>
+          {/* <ScrollView>
             {test_arr.map((r) => (
               <View key={r.id} style={styles.reviewContainer}>
                 <Text style={styles.reviewParkName}>{r.parkName}</Text>
@@ -481,7 +609,7 @@ const MapComponent = () => {
                 <Text style={styles.reviewComment}>"{r.comment}"</Text>
               </View>
             ))}
-          </ScrollView>
+          </ScrollView> */}
         </SafeAreaView>
       </Modal>
 
@@ -580,10 +708,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: scaledFontSize(28),
-    margin: "5%",
-    alignContent: "center",
-    alignItems: "center",
-    justifyContent: "center",
+    marginTop: "5%",
+    marginBottom: "2%",
+    textAlign: "center",
   },
   modalBackText: {
     color: "white",
@@ -598,11 +725,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
     marginTop: width * 0.08,
   },
+  flexContainer: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
   modalActionButton: {
-    backgroundColor: "#0fa726",
+    backgroundColor: "#027bff",
     width: "50%",
     height: "7%",
-    borderRadius: scale * 30,
+    borderRadius: scale * 10,
     alignItems: "center",
     justifyContent: "center",
     margin: height / 100, // Vertical spacing
@@ -663,6 +794,24 @@ const styles = StyleSheet.create({
     color: "white",
     fontStyle: "italic",
     fontSize: 14,
+  },
+  modalText: {
+    color: "white",
+    fontSize: scaledFontSize(18),
+    fontWeight: "bold",
+    color: "#027bff",
+    margin: "2%",
+  },
+  modalImage: {
+    width: 200, // Adjust size
+    height: 200, // Adjust size
+    resizeMode: "cover", // Maintain aspect ratio
+    borderRadius: 10, // Optional rounded corners
+    marginVertical: 10, // Add spacing
+  },
+  locationText: {
+    color: "white",
+    fontSize: scaledFontSize(12),
   },
 });
 
