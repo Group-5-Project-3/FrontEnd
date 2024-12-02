@@ -1,0 +1,68 @@
+.review-modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .review-modal-footer {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .review-group {
+    margin-bottom: 20px;
+  }
+  
+  .review-textarea {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    resize: none;
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .review-rating {
+    display: flex;
+    align-items: center;
+  }
+  
+  .rating-text {
+    margin-left: 15px;
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .review-file-input {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 8px;
+  }
+  
+  .selected-file {
+    margin-top: 5px;
+    display: block;
+    color: #6c757d;
+    font-size: 13px;
+  }
+  
+  .review-submit-button {
+    background-color: #007bff;
+    border-color: #007bff;
+    border-radius: 8px;
+    padding: 10px 20px;
+  }
+  
+  .review-submit-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .review-cancel-button {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    border-radius: 8px;
+    padding: 10px 20px;
+  }
+  
+  .review-cancel-button:hover {
+    background-color: #5a6268;
+  }
+  

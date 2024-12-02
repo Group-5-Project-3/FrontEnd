@@ -33,6 +33,7 @@ export const getImagesByUserId = async (userId) => {
 
 export const uploadTrailImage = async (file, trailId, userId, description) => {
     try {
+        const token = localStorage.getItem('auth_token');
         const formData = new FormData();
         formData.append('file', file); // The uploaded file
         formData.append('trailId', trailId); // The trail ID
@@ -42,6 +43,7 @@ export const uploadTrailImage = async (file, trailId, userId, description) => {
         const response = await apiClient.post('/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data', // Required for file uploads
+                Authorization: `Bearer ${token}`,
             },
         });
 
