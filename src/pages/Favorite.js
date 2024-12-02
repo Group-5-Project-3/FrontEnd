@@ -21,7 +21,7 @@ const Favorite = () => {
         const trails = await getFavoriteTrailsWithImages(user.id);
         setFavoriteTrails(trails);
       } catch (err) {
-        setError('Failed to fetch favorite trails.');
+        setError("Failed to fetch favorite trails.");
       } finally {
         setLoading(false);
       }
@@ -51,6 +51,7 @@ const Favorite = () => {
     }
   };
 
+
   const formatSentiments = (sentiments) => {
     if (!sentiments) return "No sentiments available.";
 
@@ -73,6 +74,7 @@ const Favorite = () => {
       </ul>
     );
   };
+
 
   if (loading) {
     return (
