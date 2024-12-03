@@ -72,9 +72,8 @@ const useSettingsActions = () => {
 
   const editUserAvatar = async (userId, file) => {
     await uploadProfilePicture(userId, file);
-    console.log(userId)
     const url = await getProfilePicture(userId);
-    console.log(url)
+    updateUser({ profilePictureUrl: url });
     alert("Edit Avatar functionality goes here.");
   };
 

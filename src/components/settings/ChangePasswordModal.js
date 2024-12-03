@@ -12,6 +12,7 @@ export const ChangePasswordModal = ({ show, onClose, user }) => {
     try {
       console.log(user);
       const correct = verifyPassword(user.id, currentPassword);
+      console.log(correct)
       
       
       onClose();
