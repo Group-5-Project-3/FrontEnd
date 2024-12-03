@@ -25,6 +25,7 @@ import {
   createTrail,
   deleteFavoriteTrail,
   findUserByUserId,
+  getCheckInsByUserId,
   getFavoriteTrailsByUserId,
   getTrailByPlacesId,
   getTrailReviews,
@@ -60,6 +61,7 @@ const MapComponent = () => {
   const [modalDesc, setModalDesc] = useState(null);
 
   const [favArr, setFavArr] = useState(null);
+  const [checkInsArr, setCheckInsArr] = useState(null);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
 
@@ -70,11 +72,12 @@ const MapComponent = () => {
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
 
   const [userReview, setUserReview] = useState("");
+  const [parkReviews, setParkReviews] = useState(null);
 
   const [rating, setRating] = useState(0);
-  const [difficulty, setDifficulty] = useState(3);
+  const [difficulty, setDifficulty] = useState(0);
 
-  const [descModal, setDescModal] = useState(false);
+  const [descModalVisible, setDescModalVisible] = useState(false);
   const [sentModal, setSentModal] = useState(false);
   const [reviewsModal, setReviewsModal] = useState(false);
 
@@ -134,6 +137,7 @@ const MapComponent = () => {
           setUserID(userInfo.id);
           setUserName(userInfo.username);
           getUserFavs();
+          getCheckIns();
           console.log("set user name and id to ", userName + " " + userID);
         }
 
@@ -213,6 +217,11 @@ const MapComponent = () => {
   const isFavorite = () => {
     if (!favArr || favArr.length === 0) return false;
     return favArr.some((fav) => fav.trailId === trailId);
+  };
+
+  const isCheckedIn = () => {
+    if (!checkInsArr || checkInsArr.length === 0) return false;
+    return checkInsArr.some((checkIn) => checkIn.trailId === trailId);
   };
 
   const fetchTrailId = async (id, place) => {
@@ -354,6 +363,11 @@ const MapComponent = () => {
       return;
     }
 
+    if (difficulty === 0) {
+      alert("Please put a Difficulty level");
+      return;
+    }
+
     const reviewInfo = {
       trailId: trailId,
       userId: userID,
@@ -368,6 +382,12 @@ const MapComponent = () => {
     try {
       const apiCallData = await createReview(reviewInfo);
       console.log("respone data: ", apiCallData);
+      setReviewModalVisible(false);
+      setModalVisible(true);
+      setUserReview("");
+      setRating(0);
+      setDifficulty(0);
+      alert("Review Submitted!");
     } catch (e) {
       console.log("Error calling createReview: ", e);
     }
@@ -390,12 +410,26 @@ const MapComponent = () => {
 
       try {
         const res = await createCheckIn(checkInData);
+        getCheckIns();
         alert("Check-in successful!");
       } catch {
         console.alert("You already checked into this trail");
       }
     } else {
       alert(`You are too far from ${modalName}. Move closer to check in!`);
+    }
+  };
+
+  const getCheckIns = async () => {
+    try {
+      const res = await getCheckInsByUserId(userID);
+      setCheckInsArr(res);
+      console.log(
+        "sucessess getting user check in arr for user: ",
+        checkInsArr
+      );
+    } catch (e) {
+      console.error("Error calling getCheckInsByUserId: ", e);
     }
   };
 
@@ -448,22 +482,27 @@ const MapComponent = () => {
     setModalVisible(false);
   };
 
-  const closeReview = () => {
+  const closeReviewsModal = () => {
     // alert("review in still being implemented");
-    setReviewModalVisible(false);
+    setReviewsModal(false);
     setModalVisible(true);
   };
 
   const getReviewsForPark = async () => {
     console.log("in getReviewForPark");
-    console.log("park id: ", modalID);
+    console.log("trail id: ", trailId);
     console.log("calling api...");
-    const response = await getTrailReviews(modalID);
+    const response = await getTrailReviews(trailId);
+    setParkReviews(response);
     console.log("response data: ", response);
+    setModalVisible(false);
+    setReviewsModal(true);
   };
 
   const openDesc = async () => {
     console.log("opening desc modal");
+    setModalVisible(false);
+    setDescModalVisible(true);
   };
 
   const openSent = async () => {
@@ -486,6 +525,19 @@ const MapComponent = () => {
     setSelectedPlace(null);
     setTrailId(null);
     setModalVisible(false);
+  };
+
+  const closeDescModal = () => {
+    setDescModalVisible(false);
+    setModalVisible(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setUserReview("");
+    setRating(0);
+    setDifficulty(0);
+    setReviewModalVisible(false);
+    setModalVisible(true);
   };
 
   return (
@@ -537,7 +589,7 @@ const MapComponent = () => {
       >
         <SafeAreaView style={styles.modalBackground}>
           <View style={styles.modalTopContainer}>
-            <Pressable onPress={() => setModalVisible(false)}>
+            <Pressable onPress={handleCloseMdoal}>
               <Text style={styles.modalBackText}>Close</Text>
             </Pressable>
           </View>
@@ -550,7 +602,7 @@ const MapComponent = () => {
             <Pressable onPress={openSent}>
               <Text style={styles.modalText}>Sentiments</Text>
             </Pressable>
-            <Pressable onPress={openReviews}>
+            <Pressable onPress={getReviewsForPark}>
               <Text style={styles.modalText}>Reviews</Text>
             </Pressable>
           </View>
@@ -570,9 +622,22 @@ const MapComponent = () => {
 
           {/* <View style={styles.lineSeprator} width="100%"></View> */}
 
-          <Pressable onPress={checkIn} style={styles.modalActionButton}>
+          {/* <Pressable onPress={checkIn} style={styles.modalActionButton}>
             <Text style={styles.bottomViewText}>Check In</Text>
-          </Pressable>
+          </Pressable> */}
+
+          {isCheckedIn() ? (
+            <Pressable
+              onPress={() => alert("You Already Checked Into This Trail!")}
+              style={styles.modalActionButton}
+            >
+              <Text style={styles.bottomViewText}>Checked In</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={checkIn} style={styles.modalActionButton}>
+              <Text style={styles.bottomViewText}>Check In</Text>
+            </Pressable>
+          )}
 
           {isFavorite() ? (
             <Pressable
@@ -594,9 +659,9 @@ const MapComponent = () => {
             <Text style={styles.bottomViewText}>Review</Text>
           </Pressable>
 
-          <Pressable onPress={getReviewsForPark}>
+          {/* <Pressable onPress={getReviewsForPark}>
             <Text style={styles.reviewsText}>Reviews</Text>
-          </Pressable>
+          </Pressable> */}
 
           {/* <ScrollView>
             {test_arr.map((r) => (
@@ -621,13 +686,12 @@ const MapComponent = () => {
       >
         <SafeAreaView style={styles.modalBackground}>
           <View style={styles.modalTopContainer}>
-            <Pressable onPress={() => closeReview(false)}>
-              <Text style={styles.modalBackText}>Close</Text>
+            <Pressable onPress={handleCloseReviewModal}>
+              <Text style={styles.modalBackText}>Back</Text>
             </Pressable>
           </View>
 
-          <Text style={styles.reviewsText}>Reviewing for...</Text>
-          <Text style={styles.modalTitleText}>{modalName}</Text>
+          <Text style={styles.modalTitleText}> Review for {modalName}</Text>
 
           <SafeAreaView style={styles.inputContainer}>
             <TextInput
@@ -642,11 +706,15 @@ const MapComponent = () => {
             />
           </SafeAreaView>
 
-          <StarRating rating={rating} onChange={setRating} />
+          <View style={styles.flexContainer}>
+            <Text style={styles.modalText}>Rate: </Text>
+            <StarRating rating={rating} onChange={setRating} />
+          </View>
 
-          <Text style={styles.reviewsText}>
-            For test purposes the diffculty will be 3
-          </Text>
+          <View style={styles.flexContainer}>
+            <Text style={styles.modalText}>Difficulty: </Text>
+            <StarRating rating={difficulty} onChange={setDifficulty} />
+          </View>
 
           <Pressable
             style={styles.modalActionButton}
@@ -654,6 +722,66 @@ const MapComponent = () => {
           >
             <Text style={styles.bottomViewText}>Submit</Text>
           </Pressable>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={descModalVisible}
+        onRequestClose={() => setDescModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.centerModalContainer}>
+            <Text style={styles.modalTitleText}>Description</Text>
+            <Text style={styles.modalTextCentered}>
+              {modalDesc || "No description available."}
+            </Text>
+            <Pressable
+              onPress={closeDescModal}
+              style={styles.modalActionButton}
+            >
+              <Text style={styles.bottomViewText}>Back</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={reviewsModal}
+        onRequestClose={() => setReviewsModal(false)}
+      >
+        <SafeAreaView style={styles.modalBackground}>
+          <View style={styles.modalTopContainer}>
+            <Pressable onPress={closeReviewsModal}>
+              <Text style={styles.modalBackText}>Back</Text>
+            </Pressable>
+          </View>
+
+          <Text style={styles.modalTitleText}> Reviews for {modalName}</Text>
+
+          <ScrollView style={styles.reviewsContainer}>
+            {parkReviews && parkReviews.length > 0 ? (
+              parkReviews.map((review, index) => (
+                <View key={index} style={styles.reviewContainer}>
+                  <Text style={styles.reviewUser}>
+                    {review.user_name || "Anonymous"}:
+                  </Text>
+                  <Text style={styles.reviewComment}>{review.comment}</Text>
+                  <Text style={styles.reviewDifficulty}>
+                    Difficulty: {review.difficultyRating}/5
+                  </Text>
+                  <Text style={styles.reviewRating}>
+                    Rating: {review.rating}/5
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noReviewsText}>No reviews available.</Text>
+            )}
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     </View>
@@ -802,6 +930,14 @@ const styles = StyleSheet.create({
     color: "#027bff",
     margin: "2%",
   },
+  modalTextCentered: {
+    color: "white",
+    fontSize: scaledFontSize(14),
+    fontWeight: "bold",
+    color: "white",
+    margin: "2%",
+    textAlign: "center",
+  },
   modalImage: {
     width: 200, // Adjust size
     height: 200, // Adjust size
@@ -812,6 +948,72 @@ const styles = StyleSheet.create({
   locationText: {
     color: "white",
     fontSize: scaledFontSize(12),
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    //alignContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  centerModalContainer: {
+    width: "80%",
+    padding: "5%",
+    backgroundColor: "black",
+    borderRadius: "10%",
+    alignItems: "center",
+    justifyContent: "center",
+    alignContent: "center",
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 4,
+    // elevation: 5,
+  },
+  reviewsContainer: {
+    marginTop: 10,
+    width: "100%",
+    padding: 10,
+    backgroundColor: "#333",
+    borderRadius: 10,
+  },
+
+  reviewContainer: {
+    backgroundColor: "#404040",
+    borderRadius: 8,
+    padding: 10,
+    marginVertical: 5,
+  },
+
+  reviewUser: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: scaledFontSize(16),
+  },
+
+  reviewComment: {
+    color: "#ddd",
+    fontSize: scaledFontSize(14),
+    marginTop: 5,
+  },
+
+  reviewDifficulty: {
+    color: "#bbb",
+    fontSize: scaledFontSize(14),
+    marginTop: 5,
+  },
+
+  reviewRating: {
+    color: "#fff",
+    fontSize: scaledFontSize(14),
+    marginTop: 5,
+  },
+
+  noReviewsText: {
+    color: "#ccc",
+    fontSize: scaledFontSize(16),
+    textAlign: "center",
+    marginTop: 10,
   },
 });
 
