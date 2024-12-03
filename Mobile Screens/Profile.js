@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     backgroundColor: "#2c6a4f",
-    marginTop: "20%",
+    marginTop: "15%",
     paddingBottom: "10%",
     width: "90%",
     height: "90%",
@@ -497,12 +497,13 @@ const styles = StyleSheet.create({
   fullNameText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: scaledFontSize(24),
+    fontSize: scaledFontSize(20),
+    marginTop: "5%",
   },
   usernameText: {
     color: "white",
     // fontWeight: "bold",
-    fontSize: scaledFontSize(18),
+    fontSize: scaledFontSize(14),
   },
   imageStyle: {
     width: width * 0.3,

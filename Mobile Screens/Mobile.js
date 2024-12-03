@@ -2,6 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Profile from "./Profile";
 import MapComponent from "./components/MapComponent";
+import Favorites from "./Favorites";
 
 const Tab = createBottomTabNavigator();
 
@@ -17,6 +18,11 @@ export default function MobileScreen() {
       <Tab.Screen
         name="Map"
         component={MapComponent}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen
+        name="Favorites"
+        component={Favorites}
         options={{ headerShown: false }}
       />
       <Tab.Screen

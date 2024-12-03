@@ -289,7 +289,7 @@ const MapComponent = () => {
   };
 
   const fetchNearbyPlaces = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBnst1HITYqMUngjdlU5bqarqkHvFG2Emc"; // Replace with your actual API key
+    const apiKey = "****"; // Replace with your actual API key
     const radius = 5000;
 
     console.log("in fetchNearbyPlaces");
@@ -443,6 +443,7 @@ const MapComponent = () => {
       const favTrailData = await addFavoriteTrail(userID, id);
       console.log("favorited trail data: ", favTrailData);
       console.log("resessting the fav arr...");
+      alert("Park Favorited!");
       getUserFavs();
     } catch {
       alert("You Already Favorited This Trail");
@@ -459,6 +460,7 @@ const MapComponent = () => {
       const favTrailData = await deleteFavoriteTrail(userID, id);
       console.log("unfavorited trail data: ", favTrailData);
       console.log("resessting the fav arr...");
+      alert("Park Unfavorited.");
       getUserFavs();
     } catch {
       alert("You Already Unfavorited This Trail");
@@ -617,7 +619,7 @@ const MapComponent = () => {
               style={styles.modalImage} // Define styles for your image
             />
           ) : (
-            <Text style={styles.modalText}>Image does NOT exist</Text>
+            <Text style={styles.inputText}>No Images Available.</Text>
           )}
 
           {/* <View style={styles.lineSeprator} width="100%"></View> */}
