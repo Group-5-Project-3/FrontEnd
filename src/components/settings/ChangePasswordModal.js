@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { updateUser } from '../APICalls/UserController';
+import { verifyPassword } from '../APICalls/UserController';
 
-export const ChangePasswordModal = ({ show, onClose }) => {
+export const ChangePasswordModal = ({ show, onClose, user }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleChangePassword = async () => {
     try {
-      alert('Password changed successfully!');
+      console.log(user);
+      const correct = verifyPassword(user.id, currentPassword);
+      
+      
       onClose();
     } catch (err) {
       setError('Error changing password: ' + err.message);
