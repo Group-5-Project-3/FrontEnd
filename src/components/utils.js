@@ -26,8 +26,8 @@ export async function checkIfTrailExist(place_id, place) {
     const trail = await getTrailByPlacesId(place_id);
     return trail; // Return the resolved trail object
   } catch (error) {
-    // If the trail is not found (404), create it
-    if (error.response && error.response.status === 404) {
+    // If the trail is not found (403), create it
+    if (error.response && error.response.status === 403) {
       console.log(
         `Trail with place_id ${place_id} not found. Creating a new trail.`
       );

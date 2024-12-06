@@ -1,12 +1,17 @@
 import axios from 'axios';
 
 // Function to get nearby parks
-export const getNearbyParks = async (latitude, longitude, radius = 5000, type = 'park', keyword = 'trail') => {
+export const getNearbyParks = async (latitude, longitude, radius = 5000, type = 'park', keyword = 'hiking') => {
     const url = `https://cst438project3-6ec60cdacb89.herokuapp.com/places?latitude=${latitude}&longitude=${longitude}&radius=${radius}&type=${type}&keyword=${keyword}`;
+
+    console.log(latitude, longitude);
+    console.log(url);
 
     try {
         // Retrieve the token from localStorage
         const token = localStorage.getItem('auth_token');
+
+        console.log(token);
 
         if (!token) {
             throw new Error('No token found');
@@ -18,6 +23,8 @@ export const getNearbyParks = async (latitude, longitude, radius = 5000, type = 
                 Authorization: `Bearer ${token}`, // Add the token as a bearer token
             },
         });
+
+        console.log(response);
 
         return response.data;
     } catch (error) {
