@@ -17,7 +17,6 @@ const AccountSettings = ({ user }) => {
     editUsername,
     editEmail,
     editUserAvatar,
-    changePassword,
     deleteAccount,
   } = useSettingsActions();
 

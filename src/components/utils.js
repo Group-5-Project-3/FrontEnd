@@ -1,5 +1,3 @@
-import React, { useEffect, useState, useContext } from "react";
-// import { getTrailByPlacesId, createTrail } from '../../APICalls';
 import { getTrailByPlacesId, createTrail } from "./APICalls/TrailController";
 import axios from "axios";
 
@@ -14,11 +12,6 @@ export function decodeJWT(token) {
   );
   return JSON.parse(jsonPayload);
 }
-
-const isTokenExpired = (decodedToken) => {
-  const currentTime = Math.floor(Date.now() / 1000); // Get the current time in seconds
-  return decodedToken.exp < currentTime;
-};
 
 export async function checkIfTrailExist(place_id, place) {
   try {

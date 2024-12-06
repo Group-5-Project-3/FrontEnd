@@ -43,8 +43,6 @@ export const createCheckIn = async (checkInData) => {
     try {
         const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
 
-        console.log("check in token", token);
-
         const response = await axios.post("https://cst438project3-6ec60cdacb89.herokuapp.com/api/checkins", checkInData, {
             headers: {
                 'Content-Type': 'application/json',

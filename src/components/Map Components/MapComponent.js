@@ -50,7 +50,6 @@ const MapComponent = ({
   };
 
   const handleMarkerClick = (place) => {
-    console.log(place);
     setSelectedPlace(place);
   };
 

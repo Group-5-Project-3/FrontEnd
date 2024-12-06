@@ -62,9 +62,7 @@ const Setting = () => {
         flex: 1,
         backgroundColor: '#1b4332', // Light gray background
         height: '100%', // Ensures full height
-        // margin: 0, // Remove any default margins
-        // padding: 0, // Remove any default padding
-        // border: 'none', // Ensure there's no border
+        overflowY: "auto", // Adds vertical scrolling when content overflows
       }}>
         {renderCategoryContent()}
       </div>

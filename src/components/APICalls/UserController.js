@@ -143,8 +143,6 @@ export const uploadProfilePicture = async (userId, file) => {
             }
         );
 
-        // Log or return the response
-        console.log('Profile picture uploaded successfully:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error uploading profile picture:', error.response?.data || error.message);

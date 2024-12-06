@@ -10,11 +10,8 @@ export const ChangePasswordModal = ({ show, onClose, user }) => {
 
   const handleChangePassword = async () => {
     try {
-      console.log(user);
       const correct = verifyPassword(user.id, currentPassword);
-      console.log(correct)
-      
-      
+      console.log(correct);
       onClose();
     } catch (err) {
       setError('Error changing password: ' + err.message);

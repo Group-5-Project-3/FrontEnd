@@ -69,15 +69,12 @@ const PlaceModal = ({
       try {
         const trailInfo = await checkIfTrailExist(place.place_id, place);
         setTrailId(trailInfo.trailId);
-        console.log("Trail ID: ", trailInfo.trailId);
         setTrailDescription(
           trailInfo.description || "No description available."
         );
         setTrailSentiments(trailInfo.sentiments || "No sentiments available.");
         setAverageRating(trailInfo.avgRating || null);
         setAverageDifficulty(trailInfo.avgDifficulty || null);
-        console.log("avgRating: {}", trailInfo.avgDifficulty);
-        console.log("avgDifficulty: {}", trailInfo.avgRating);
         const images = await getImagesByTrailId(trailInfo.trailId);
         setTrailImages(images.map((img) => img.imageUrl));
 
