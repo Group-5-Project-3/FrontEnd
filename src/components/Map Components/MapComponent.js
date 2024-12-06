@@ -37,6 +37,7 @@ const MapComponent = ({
   searchLocation,
   currentLocation,
   setSearchLocation,
+  isSearchLocation
 }) => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [showMarkers, setShowMarkers] = useState(true);
@@ -49,7 +50,6 @@ const MapComponent = ({
   };
 
   const handleMarkerClick = (place) => {
-    console.log(place);
     setSelectedPlace(place);
   };
 
@@ -139,6 +139,7 @@ const MapComponent = ({
               onClose={() => setSelectedPlace(null)}
               place={selectedPlace}
               currentLocation={currentLocation}
+              isSearchLocation={isSearchLocation} // Pass the flag to the modal
             />
           </GoogleMap>
 

@@ -5,6 +5,8 @@ import {
   updateUser as updatedUserAPI,
   uploadProfilePicture,
 } from "../APICalls/UserController";
+import { verifyPassword } from '../APICalls/UserController';
+import { getProfilePicture } from "../APICalls/UserController";
 
 const useSettingsActions = () => {
   const { user, updateUser, logout } = useContext(AuthContext);
@@ -49,6 +51,7 @@ const useSettingsActions = () => {
   };
 
   const changePassword = async (newPassword) => {
+    console.log(newPassword)
     alert("Change Password functionality goes here.");
   };
 
@@ -69,6 +72,8 @@ const useSettingsActions = () => {
 
   const editUserAvatar = async (userId, file) => {
     await uploadProfilePicture(userId, file);
+    const url = await getProfilePicture(userId);
+    updateUser({ profilePictureUrl: url });
     alert("Edit Avatar functionality goes here.");
   };
 

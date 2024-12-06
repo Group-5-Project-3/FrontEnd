@@ -18,6 +18,7 @@ export default function WebScreen() {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [searchLocation, setSearchLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const isSearchLocation = searchLocation !== null; // Determine if it's a search location
 
   useEffect(() => {
     const fetchUserLocationAndPlaces = async () => {
@@ -34,7 +35,7 @@ export default function WebScreen() {
 
           try {
             const data = await getNearbyParks(latitude, longitude);
-            setPlaces(data?.results || []);
+            setPlaces(data.results || []);
           } catch (err) {
             console.error("Failed to fetch nearby places:", err); // Log API errors
             setError("Failed to fetch nearby places.");
@@ -166,6 +167,7 @@ export default function WebScreen() {
           searchLocation={searchLocation}
           currentLocation={currentLocation}
           setSearchLocation={setSearchLocation}
+          isSearchLocation={isSearchLocation} // Pass the flag to MapComponent
         />
       )}
     </Container>

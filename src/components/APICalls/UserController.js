@@ -143,11 +143,50 @@ export const uploadProfilePicture = async (userId, file) => {
             }
         );
 
-        // Log or return the response
-        console.log('Profile picture uploaded successfully:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error uploading profile picture:', error.response?.data || error.message);
         throw error; // Re-throw error for handling in caller function
+    }
+};
+
+
+export const verifyPassword = async (userId, password) => {
+    const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
+    try {
+        const response = await axios.post(
+            `https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/verify-password/${userId}`,
+            password, // Send password directly as the raw string
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`, // Add the token as a bearer token
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error during password verification:', error);
+        throw error;
+    }
+};
+
+
+export const getProfilePicture = async (userId) => {
+    const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
+
+    try {
+        const response = await axios.get(
+            `https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${userId}/profile-picture`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Add authorization header if needed
+                },
+            }
+        );
+        return response.data; // Return the profile picture URL
+    } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        throw error;
     }
 };

@@ -94,6 +94,15 @@ const Favorite = () => {
     );
   }
 
+  if (!loading && favoriteTrails.length === 0) {
+    return (
+      <Container className="mt-4">
+        <h2>Favorites</h2>
+        <p>No favorite trails found. Start adding some!</p>
+      </Container>
+    );
+  }
+
   return (
     <Container fluid className="mt-4">
       <h2>Favorites</h2>

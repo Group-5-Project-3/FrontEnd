@@ -17,7 +17,6 @@ const AccountSettings = ({ user }) => {
     editUsername,
     editEmail,
     editUserAvatar,
-    changePassword,
     deleteAccount,
   } = useSettingsActions();
 
@@ -235,6 +234,7 @@ const AccountSettings = ({ user }) => {
               <ChangePasswordModal
                 show={showChangePasswordModal}
                 onClose={() => setShowChangePasswordModal(false)}
+                user={user}
               />
             </Col>
             <Col md={6}>

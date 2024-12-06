@@ -7,9 +7,9 @@ export default function Trails() {
   const [loading, setLoading] = useState(true);
   const latitude =	34.0069; // Center of California
   const longitude = 	-119.7785; // Center of California
-  const radius = 50000; // 500 km radius to cover the state
+  const radius = 5000; // 500 km radius to cover the state
   const type = 'park';
-  const keyword = 'national';
+  const keyword = 'trail';
 
   useEffect(() => {
     const fetchUserLocationAndPlaces = async () => {

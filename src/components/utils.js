@@ -1,5 +1,3 @@
-import React, { useEffect, useState, useContext } from "react";
-// import { getTrailByPlacesId, createTrail } from '../../APICalls';
 import { getTrailByPlacesId, createTrail } from "./APICalls/TrailController";
 import axios from "axios";
 
@@ -15,19 +13,14 @@ export function decodeJWT(token) {
   return JSON.parse(jsonPayload);
 }
 
-const isTokenExpired = (decodedToken) => {
-  const currentTime = Math.floor(Date.now() / 1000); // Get the current time in seconds
-  return decodedToken.exp < currentTime;
-};
-
 export async function checkIfTrailExist(place_id, place) {
   try {
     // Await the result of getTrailByPlacesId
     const trail = await getTrailByPlacesId(place_id);
     return trail; // Return the resolved trail object
   } catch (error) {
-    // If the trail is not found (404), create it
-    if (error.response && error.response.status === 404) {
+    // If the trail is not found (403), create it
+    if (error.response && error.response.status === 403) {
       console.log(
         `Trail with place_id ${place_id} not found. Creating a new trail.`
       );

@@ -29,7 +29,6 @@ const ReviewModal = ({ isOpen, onClose, trailId, placeName, user, onSubmit }) =>
         };
 
         if (selectedImage) {
-            console.log(selectedImage)
             // reviewData.append("image", selectedImage);
             await uploadTrailImage(selectedImage, trailId, user.id, reviewText);
 
@@ -38,7 +37,6 @@ const ReviewModal = ({ isOpen, onClose, trailId, placeName, user, onSubmit }) =>
 
         setIsLoading(true);
         try {
-            console.log(reviewData);
             await onSubmit(reviewData); // Ensure your `onSubmit` function can handle FormData
             onClose();
         } catch (error) {
