@@ -2,12 +2,17 @@ import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decodeJWT } from "./components/utils/utils";
-import { findUserByUserId, getFavoriteTrailsByUserId } from "../APICalls";
+import {
+  findUserByUserId,
+  getFavoriteTrailsByUserId,
+  getFavoriteTrailsWithImages,
+} from "../APICalls";
 import { FlatList } from "react-native";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { Image } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { ScrollView } from "react-native";
 
 const Favorites = () => {
   const [userData, setUserData] = useState(null);
@@ -56,6 +61,10 @@ const Favorites = () => {
           const userFavArr = await getFavoriteTrailsByUserId(userID);
           console.log("getFavoriteTrailsByUserId returned: ", userFavArr);
           setFavArr(userFavArr);
+          const userFavArrImages = await getFavoriteTrailsWithImages(userID);
+          console.log("IMAGEs endpoint returned: ", userFavArrImages);
+          console.log(userFavArrImages[0].trailImages[0]);
+          setFavArr(userFavArrImages);
         } catch (error) {
           console.log("Error getting user favs: ", error);
         }
@@ -84,19 +93,25 @@ const Favorites = () => {
           <View style={styles.cardFront}>
             <Image
               source={
-                item.images && item.images[0]?.imageUrl
-                  ? { uri: item.images[0].imageUrl }
+                item.trailImages
+                  ? { uri: item.trailImages[0].imageUrl }
                   : require("../assets/Forest.webp")
               }
               style={styles.cardImage}
               resizeMode="cover"
             />
-            <Text style={styles.cardTitle}>{item.name}</Text>
+            <Text style={styles.cardTitle}>
+              {item.trail?.name || "Unamed Trail"}
+            </Text>
           </View>
         ) : (
-          <View style={styles.cardBack}>
-            <Text style={styles.cardDescription}>{item.description}</Text>
-          </View>
+          <ScrollView style={styles.scrollContainer}>
+            <View style={styles.cardBack}>
+              <Text style={styles.cardDescription}>
+                {item.trail?.description || "No Description Available"}
+              </Text>
+            </View>
+          </ScrollView>
         )}
       </TouchableOpacity>
     );
@@ -105,12 +120,14 @@ const Favorites = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{username}'s Favorites</Text>
+
       <FlatList
         data={favArr}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         numColumns={2}
         contentContainerStyle={styles.listContainer}
+        keyboardShouldPersistTaps="handled"
       />
     </View>
   );
@@ -174,6 +191,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#fff",
     textAlign: "center",
+  },
+  scrollContainer: {
+    flex: 1, // Ensures ScrollView fills available space
+    width: "100%", // Ensures ScrollView doesn't shrink
   },
 });
 

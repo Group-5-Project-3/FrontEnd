@@ -501,3 +501,48 @@ export const createTrail = async (trail) => {
     throw error;
   }
 };
+
+// GET milestones by user ID
+export const getMilestonesByUserId = async (userId) => {
+  try {
+    const token = await AsyncStorage.getItem("@auth_token");
+
+    const response = await axios.get(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/milestones/${userId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("getMilestonesByUserId returned res data: ", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching milestones by user ID:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const getFavoriteTrailsWithImages = async (userId) => {
+  try {
+    const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+
+    const response = await axios.get(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/favorites/${userId}/with-images`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching favorite trails by user ID:", error);
+    throw error;
+  }
+};

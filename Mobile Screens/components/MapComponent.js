@@ -289,7 +289,7 @@ const MapComponent = () => {
   };
 
   const fetchNearbyPlaces = async (latitude, longitude) => {
-    const apiKey = "****"; // Replace with your actual API key
+    const apiKey = "AIzaSyBnst1HITYqMUngjdlU5bqarqkHvFG2Emc"; // Replace with your actual API key
     const radius = 5000;
 
     console.log("in fetchNearbyPlaces");
@@ -544,6 +544,7 @@ const MapComponent = () => {
 
   return (
     <View style={styles.container}>
+      {/* <Text>input here</Text> */}
       <MapView
         style={styles.map}
         region={location}
@@ -786,6 +787,14 @@ const MapComponent = () => {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      <TextInput
+        style={styles.textInput}
+        placeholder="Search for a location"
+        placeholderTextColor="#aaa"
+        // value={searchQuery}
+        // onChangeText={setSearchQuery}
+      />
     </View>
   );
 };
@@ -1016,6 +1025,22 @@ const styles = StyleSheet.create({
     fontSize: scaledFontSize(16),
     textAlign: "center",
     marginTop: 10,
+  },
+  textInput: {
+    position: "absolute", // Make the TextInput overlay the MapView
+    top: 60, // Adjust vertical position
+    left: 20, // Adjust horizontal position
+    right: 20, // Ensure it doesn't stretch out of bounds
+    height: 50, // Adjust height
+    backgroundColor: "white", // Background color for visibility
+    borderRadius: 10, // Rounded corners
+    paddingHorizontal: 15, // Padding for input text
+    fontSize: 16, // Font size for input text
+    shadowColor: "#000", // Optional shadow for better visibility
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5, // Shadow for Android
   },
 });
 
