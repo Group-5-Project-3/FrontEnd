@@ -1,4 +1,4 @@
-import { getTrailByPlacesId, createTrail } from "./APICalls/TrailController";
+import { getTrailByPlacesId, createTrail, updateTrailCoordinates } from "./APICalls/TrailController";
 import axios from "axios";
 
 export function decodeJWT(token) {
@@ -14,27 +14,55 @@ export function decodeJWT(token) {
 }
 
 export async function checkIfTrailExist(place_id, place) {
+  console.log(`Checking if trail exists for place_id: ${place_id}`); // Log start of function
   try {
-    // Await the result of getTrailByPlacesId
     const trail = await getTrailByPlacesId(place_id);
-    return trail; // Return the resolved trail object
+    console.log(`Trail found: ${JSON.stringify(trail)}`); // Log trail details
+
+    if (!trail.coordinates) {
+      console.log(
+        `Trail with place_id: ${place_id} is missing coordinates. Updating coordinates.`
+      );
+
+      const latitude = place.geometry.location.lat;
+      const longitude = place.geometry.location.lng;
+
+      await updateTrailCoordinates(place_id, latitude, longitude);
+      console.log(
+        `Coordinates updated to: latitude ${latitude}, longitude ${longitude} for trail ID: ${place_id}`
+      );
+    }
+    return trail;
   } catch (error) {
-    // If the trail is not found (403), create it
+    console.error(`Error while checking trail for place_id: ${place_id}`, error);
+
     if (error.response && error.response.status === 403) {
       console.log(
-        `Trail with place_id ${place_id} not found. Creating a new trail.`
+        `Trail with place_id: ${place_id} not found. Creating a new trail.`
       );
+
+      const coordinates = `${place.geometry.location.lat},${place.geometry.location.lng}`;
       const newTrail = {
         placesId: place_id,
         name: place.name,
         location: place.vicinity,
         description: "New review",
+        coordinates,
       };
-      // MIGHT CAUSE ERROR IF NEW TRAIL IS CREATE AND DOES NOT HAVE IMAGE FIELD
-      return await createTrail(newTrail); // Call the createTrail function to add it to the database
+
+      try {
+        const createdTrail = await createTrail(newTrail);
+        console.log(`New trail created: ${JSON.stringify(createdTrail)}`);
+        return createdTrail;
+      } catch (creationError) {
+        console.error(
+          `Error creating trail for place_id: ${place_id}`,
+          creationError
+        );
+        throw creationError;
+      }
     }
-    // For any other errors, log and re-throw
-    console.error("An unexpected error occurred:", error.message);
+
     throw error;
   }
 }

@@ -107,3 +107,29 @@ export const deleteTrail = async (id) => {
         throw error;
     }
 };
+
+// Update coordinates by id using latitude and longitude as path variables
+export const updateTrailCoordinates = async (id, latitude, longitude) => {
+    try {
+        const token = localStorage.getItem('auth_token'); // Retrieve token from localStorage
+        const response = await axios.put(
+            `https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/${id}/coordinates/${latitude}/${longitude}`,
+            null, 
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error updating coordinates:", error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
+
+  
+
