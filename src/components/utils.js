@@ -29,8 +29,7 @@ export async function checkIfTrailExist(place_id, place) {
         name: place.name,
         location: place.vicinity,
         description: "New review",
-      };
-      // MIGHT CAUSE ERROR IF NEW TRAIL IS CREATE AND DOES NOT HAVE IMAGE FIELD
+      };  
       return await createTrail(newTrail); // Call the createTrail function to add it to the database
     }
     // For any other errors, log and re-throw

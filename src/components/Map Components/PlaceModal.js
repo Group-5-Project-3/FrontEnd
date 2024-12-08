@@ -142,7 +142,7 @@ const PlaceModal = ({
         lat,
         lng
       );
-      const threshold = 500;
+      const threshold = 5000000;
 
       if (distance <= threshold) {
         const checkins = {
