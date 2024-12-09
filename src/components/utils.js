@@ -91,31 +91,33 @@ export const sortBadges = (badges) => {
   // Helper function to sort based on numeric criteria
   const sortByCriteria = (array) => {
     return array.sort((a, b) => {
-      const numA = parseInt(a.criteria.match(/\d+/)?.[0] || "0", 10);
-      const numB = parseInt(b.criteria.match(/\d+/)?.[0] || "0", 10);
+      const numA = parseInt(a.criteria?.match(/\d+/)?.[0] || "0", 10);
+      const numB = parseInt(b.criteria?.match(/\d+/)?.[0] || "0", 10);
       return numA - numB;
     });
   };
 
   // Group and sort badges
-  const NATIONAL_PARKS = badges.filter(
-    (item) => item.type === "NATIONAL_PARKS"
-  );
-  const DISTANCE = sortByCriteria(
-    badges.filter((item) => item.type === "DISTANCE")
-  );
-  const ELEVATION = sortByCriteria(
-    badges.filter((item) => item.type === "ELEVATION")
-  );
-  const TOTAL_HIKES = sortByCriteria(
-    badges.filter((item) => item.type === "TOTAL_HIKES")
-  );
+  const NATIONAL_PARKS = badges.filter((item) => item.type === "NATIONAL_PARKS");
+  const DISTANCE = sortByCriteria(badges.filter((item) => item.type === "DISTANCE"));
+  const ELEVATION = sortByCriteria(badges.filter((item) => item.type === "ELEVATION"));
+  const TOTAL_HIKES = sortByCriteria(badges.filter((item) => item.type === "TOTAL_HIKES"));
+  const CHECKIN = sortByCriteria(badges.filter((item) => item.type === "CHECKIN"));
 
   // Combine all groups into one array
-  const badge = [...NATIONAL_PARKS, ...DISTANCE, ...ELEVATION, ...TOTAL_HIKES];
+  const sortedBadges = [
+    ...NATIONAL_PARKS,
+    ...DISTANCE,
+    ...ELEVATION,
+    ...TOTAL_HIKES,
+    ...CHECKIN, // Include the CHECKIN badges
+  ];
 
-  return badge;
+  console.log("Sorted badges:", sortedBadges);
+
+  return sortedBadges;
 };
+
 
 /**
  * Fetches the latitude and longitude of a given address.

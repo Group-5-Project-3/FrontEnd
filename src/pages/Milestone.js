@@ -18,13 +18,25 @@ const Milestone = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching all badges...');
         const badgeData = await getAllBadges();
+        console.log('Badges fetched:', badgeData);
+
+        console.log(`Fetching user badges for user ID: ${user.id}`);
         const userBadgeData = await getBadgesByUserId(user.id);
+        console.log('User badges fetched:', userBadgeData);
+
+        console.log(`Fetching milestones for user ID: ${user.id}`);
         const milestoneData = await getMilestonesByUserId(user.id);
+        console.log('Milestones fetched:', milestoneData);
+
         setBadges(sortBadges(badgeData));
+        console.log('Sorted badges:', sortBadges(badgeData));
+
         setUserBadges(userBadgeData);
         setMilestones(milestoneData);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError('Failed to fetch data. Please try again later.');
       }
     };
@@ -32,8 +44,11 @@ const Milestone = () => {
     fetchData();
   }, [user]);
 
-  const isBadgeInUserBadges = (badge) =>
-    userBadges.some((userBadge) => userBadge.badgeId === badge.badgeId);
+  const isBadgeInUserBadges = (badge) => {
+    const result = userBadges.some((userBadge) => userBadge.badgeId === badge.badgeId);
+    console.log(`Checking if badge (${badge.name}) is in user badges:`, result);
+    return result;
+  };
 
   const groupedBadges = badges.reduce((groups, badge) => {
     const { type } = badge;
@@ -41,13 +56,18 @@ const Milestone = () => {
       groups[type] = [];
     }
     groups[type].push(badge);
+    console.log(`Grouping badge (${badge.name}) under type: ${type}`);
     return groups;
   }, {});
+
+  console.log('Grouped badges:', groupedBadges);
 
   const filteredBadges =
     filter === 'All Badges'
       ? badges
       : badges.filter((badge) => badge.type === filter);
+
+  console.log('Filtered badges:', filteredBadges);
 
   return (
     <Container fluid className="milestone-scrollable-container">
@@ -82,6 +102,11 @@ const Milestone = () => {
               <div className="milestone-label">National Parks Visited</div>
               <div className="milestone-value">{milestones.nationalParksVisited}</div>
             </div>
+            <div className="milestone-card">
+              <div className="milestone-icon">✔️</div>
+              <div className="milestone-label">Total Check-ins</div>
+              <div className="milestone-value">{milestones.totalCheckIn || 0}</div>
+            </div>
           </div>
         </div>
       )}
@@ -93,6 +118,7 @@ const Milestone = () => {
           <option value="ELEVATION">Elevation</option>
           <option value="NATIONAL_PARKS">National Parks</option>
           <option value="TOTAL_HIKES">Total Hikes</option>
+          <option value="CHECKIN">Check-in</option>
         </Form.Select>
       </Form.Group>
 
@@ -154,7 +180,7 @@ const Milestone = () => {
                             isBadgeInUserBadges(badge) ? 'completed' : 'incomplete'
                           }`}
                         >
-                          {isBadgeInUserBadges(badge) ? 'Completed' : 'Incomplete'}
+                              {isBadgeInUserBadges(badge) ? 'Completed' : 'Incomplete'}
                         </Card.Text>
                       </div>
                     </div>
