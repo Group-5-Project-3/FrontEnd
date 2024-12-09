@@ -22,29 +22,6 @@ const StarRating = ({ rating }) => {
   return <div>{stars}</div>;
 };
 
-const formatSentiments = (sentiments) => {
-  if (!sentiments) return "No sentiments available.";
-
-  const sentimentItems = sentiments
-    .split(/\d+\.\s/) // Split by numbered items like "1. ", "2. "
-    .filter((item) => item.trim() !== ""); // Remove empty strings
-
-  return (
-    <ul>
-      {sentimentItems.map((item, index) => {
-        const cleanedItem = item.replace(/\*\*/g, ""); // Remove markdown bold (**)
-        const [boldPart, ...rest] = cleanedItem.split(":"); // Split by colon for bolding
-        return (
-          <li key={index}>
-            <strong>{boldPart.trim()}</strong>
-            {rest.length > 0 ? `: ${rest.join(":").trim()}` : ""}
-          </li>
-        );
-      })}
-    </ul>
-  );
-};
-
 const PlaceModal = ({
   isOpen,
   onClose,
@@ -142,7 +119,7 @@ const PlaceModal = ({
         lat,
         lng
       );
-      const threshold = 500;
+      const threshold = 5000;
 
       if (distance <= threshold) {
         const checkins = {
@@ -203,7 +180,7 @@ const PlaceModal = ({
             <Accordion.Item eventKey="1">
               <Accordion.Header>Sentiments</Accordion.Header>
               <Accordion.Body>
-                {formatSentiments(trailSentiments)}
+                <p>{trailSentiments}</p>
               </Accordion.Body>
             </Accordion.Item>
             <Accordion.Item eventKey="2">

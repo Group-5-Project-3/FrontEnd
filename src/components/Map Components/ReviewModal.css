@@ -1,0 +1,98 @@
+/* General Modal Styling */
+.review-modal {
+    font-family: 'Arial', sans-serif;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+.modal-body {
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.review-textarea {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+/* Ratings Styling */
+.rating-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align to the left */
+    margin-top: 15px;
+}
+
+.rating-label {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* File Input Styling */
+.file-input-container {
+    margin-top: 20px; /* Adds padding above the file input section */
+}
+
+.file-input {
+    border: none;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+.selected-file {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #007bff;
+}
+
+/* Buttons */
+.submit-button {
+    background-color: #007bff;
+    border: none;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+.cancel-button {
+    background-color: #6c757d;
+    border: none;
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+    background-color: #5a6268;
+}
+
+
+
