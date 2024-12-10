@@ -1,18 +1,27 @@
 import { View, Text, Image, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { decodeJWT } from "./components/utils/utils";
-import { findUserByUserId, updateUser } from "../APICalls";
+import {
+  findUserByUserId,
+  updateUser,
+  uploadProfilePicture,
+} from "../APICalls";
 import { Dimensions } from "react-native";
 import { Modal } from "react-native";
 import { SafeAreaView } from "react-native";
 import { TextInput } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { AuthContext } from "./AuthContext";
+import { useNavigation } from "@react-navigation/native";
 
 const Profile = () => {
   const [token, setToken] = useState(null);
   const [userData, setUserData] = useState(null);
   const [userID, setUserID] = useState(null);
+  const { setIsLoggedIn } = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const [username, setUsername] = useState("");
   const [userFirst, setUserFirst] = useState("");
@@ -31,6 +40,8 @@ const Profile = () => {
   const [nameModal, setNameModal] = useState(false);
   const [emailModal, setEmailModal] = useState(false);
   const [usernameModal, setUsernameModal] = useState(false);
+
+  //   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     console.log("in profile");
@@ -213,7 +224,56 @@ const Profile = () => {
     setUsernameModal(true);
   };
 
-  //test
+  const pickImage = async () => {
+    console.log("in pickImage");
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaType,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      console.log("after image picker...");
+      console.log("picked image info: ", result);
+
+      if (!result.canceled) {
+        const selectedImage = result.assets[0]; // Get the selected image details
+        console.log("Selected Image: ", selectedImage);
+
+        // Call the upload function
+        await uploadProfilePicture(
+          {
+            uri: selectedImage.uri,
+            name: selectedImage.fileName || "uploaded_image.jpg",
+            type: selectedImage.type || "image/jpeg",
+          },
+          userID // Pass the user ID
+        );
+      } else {
+        console.log("Image picker canceled.");
+      }
+    } catch (error) {
+      console.error("Error picking image: ", error);
+      alert("Failed to upload the image. Please try again.");
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      console.log("Logging out...");
+      // Remove the stored token and any other related data
+      await AsyncStorage.removeItem("@auth_token");
+      await AsyncStorage.removeItem("@username");
+
+      setIsLoggedIn(false); // Update auth context
+      navigation.navigate("StartUp"); // Navigate to Home screen
+      alert("You have been logged out.");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      alert("Failed to log out. Please try again.");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -234,7 +294,7 @@ const Profile = () => {
             style={styles.imageStyle}
           />
 
-          <Pressable style={styles.editAviButton}>
+          <Pressable style={styles.editAviButton} onPress={pickImage}>
             <Text style={styles.editButtonText}>Edit Avatar</Text>
           </Pressable>
         </View>
@@ -293,10 +353,19 @@ const Profile = () => {
           </Pressable>
         </View>
 
-        <View style={styles.sectionButton}>
-          <Pressable style={[styles.fullButton, styles.deleteButton]}>
-            <Text style={styles.fullButtonText}>Delete Account</Text>
+        <View style={styles.sectionButton} marginTop={"2%"}>
+          <Pressable
+            style={[styles.fullButton, styles.deleteButton]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.fullButtonText}>Log Out</Text>
           </Pressable>
+
+          <View style={styles.sectionButton}>
+            <Pressable style={[styles.fullButton, styles.deleteButton]}>
+              <Text style={styles.fullButtonText}>Delete Account</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
 

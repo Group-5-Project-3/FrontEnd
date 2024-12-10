@@ -147,6 +147,7 @@ export const findUserByUserId = async (id) => {
         },
       }
     );
+    console.log("user data in findUserByUserId:", response.data);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -268,6 +269,7 @@ export const getCheckInsByTrailId = async (trailId) => {
 // POST create a new check-in
 export const createCheckIn = async (checkInData) => {
   try {
+    console.log("createCheckIn checkInData that was passed in: ", checkInData);
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
 
     const response = await axios.post(
@@ -280,6 +282,7 @@ export const createCheckIn = async (checkInData) => {
         },
       }
     );
+    console.log("response.data: ", response.data);
     return response.data;
   } catch (error) {
     console.error("Error creating check-in:", error);
@@ -349,6 +352,7 @@ export const getTrailReviews = async (trailId) => {
       }
     );
     console.log("success...");
+    console.log("data info in getTrailReviews : ", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -530,6 +534,7 @@ export const getMilestonesByUserId = async (userId) => {
 export const getFavoriteTrailsWithImages = async (userId) => {
   try {
     const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+    console.log("in getFavoriteTrailsWithImages, calling api...");
 
     const response = await axios.get(
       `https://cst438project3-6ec60cdacb89.herokuapp.com/api/favorites/${userId}/with-images`,
@@ -540,9 +545,114 @@ export const getFavoriteTrailsWithImages = async (userId) => {
         },
       }
     );
+    console.log("getFavoriteTrailsWithImages response.data: ", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching favorite trails by user ID:", error);
+    console.error("Error fetching favorite trails IMAGES by user ID:", error);
+    throw error;
+  }
+};
+
+export const getCoordinates = async (address) => {
+  console.log("in getCoordinates");
+  // console.log("Environment Variables:", process.env);
+  const apiKey = HOLDER;
+  // console.log("apiKey is: ", apiKey);
+
+  if (!apiKey) {
+    throw new Error(
+      "Google Maps API key is missing. Check your .env.local file."
+    );
+  }
+
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    address
+  )}&key=${apiKey}`;
+  try {
+    const response = await axios.get(url);
+    if (response.data.status === "OK") {
+      return response.data.results[0].geometry.location;
+    } else {
+      throw new Error(`Geocoding API error: ${response.data.status}`);
+    }
+  } catch (error) {
+    throw new Error(`Error fetching coordinates: ${error.message}`);
+  }
+};
+
+export const uploadProfilePicture = async (file, userId) => {
+  try {
+    console.log("in uploadProfilePicture...");
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("file", file); // Match backend's expectation
+    console.log("FormData for upload");
+
+    const token = await AsyncStorage.getItem("@auth_token");
+    console.log("Calling endpoint for upload....");
+
+    // Make the POST request
+    const response = await axios.post(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/users/${userId}/profile-picture`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data", // Set the content type
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+
+    console.log("Uploaded.");
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error uploading profile picture:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+// GET check-ins by user ID
+export const getAllBadges = async () => {
+  try {
+    console.log("in getAllBadges");
+    const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+
+    const response = await axios.get(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/badges`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching check-ins by user ID:", error);
+    throw error;
+  }
+};
+
+// GET check-ins by user ID
+export const getBadgesByUserId = async (userId) => {
+  try {
+    const token = await AsyncStorage.getItem("@auth_token"); // Retrieve token from localStorage
+
+    const response = await axios.get(
+      `https://cst438project3-6ec60cdacb89.herokuapp.com/api/user-badges/user/${userId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Add the token as a bearer token
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching check-ins by user ID:", error);
     throw error;
   }
 };

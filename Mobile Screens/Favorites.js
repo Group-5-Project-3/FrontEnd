@@ -107,9 +107,11 @@ const Favorites = () => {
         ) : (
           <ScrollView style={styles.scrollContainer}>
             <View style={styles.cardBack}>
-              <Text style={styles.cardDescription}>
-                {item.trail?.description || "No Description Available"}
-              </Text>
+              <ScrollView style={styles.scrollContainer}>
+                <Text style={styles.cardDescription}>
+                  {item.trail?.description || "No Description Available"}
+                </Text>
+              </ScrollView>
             </View>
           </ScrollView>
         )}
@@ -121,14 +123,20 @@ const Favorites = () => {
     <View style={styles.container}>
       <Text style={styles.title}>{username}'s Favorites</Text>
 
-      <FlatList
-        data={favArr}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={2}
-        contentContainerStyle={styles.listContainer}
-        keyboardShouldPersistTaps="handled"
-      />
+      {favArr && favArr.length > 0 ? (
+        <FlatList
+          data={favArr}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          numColumns={2}
+          contentContainerStyle={styles.listContainer}
+          keyboardShouldPersistTaps="handled"
+        />
+      ) : (
+        <View style={styles.noFavoritesContainer}>
+          <Text style={styles.noFavoritesText}>No favorites yet!</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -195,6 +203,17 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1, // Ensures ScrollView fills available space
     width: "100%", // Ensures ScrollView doesn't shrink
+  },
+  noFavoritesContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  noFavoritesText: {
+    fontSize: 18,
+    color: "#aaa",
+    textAlign: "center",
   },
 });
 

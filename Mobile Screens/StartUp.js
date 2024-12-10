@@ -86,13 +86,35 @@ const StartUp = () => {
   };
 
   const loginToSignUp = () => {
+    setUsername("");
+    setPassword("");
     setSignModalVisible(false);
     setCreateAccModalVisible(true);
   };
 
   const signUpToLogin = () => {
     setCreateAccModalVisible(false);
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setCreateAccModalVisible(false);
     setSignModalVisible(true);
+  };
+
+  const cancelCreateAccModal = () => {
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setCreateAccModalVisible(false);
+  };
+
+  const cancelSignInModal = () => {
+    console.log("in cancelSignInModal");
+    setUsername("");
+    setPassword("");
+    setSignModalVisible(false);
   };
 
   return (
@@ -135,7 +157,7 @@ const StartUp = () => {
       >
         <SafeAreaView style={styles.modalBackground}>
           <View style={styles.modalTopContainer}>
-            <Pressable onPress={() => setSignModalVisible(false)}>
+            <Pressable onPress={cancelSignInModal}>
               <Text style={styles.modalBackText}>Cancel</Text>
             </Pressable>
           </View>
@@ -184,7 +206,7 @@ const StartUp = () => {
       >
         <SafeAreaView style={styles.modalBackground}>
           <View style={styles.modalTopContainer}>
-            <Pressable onPress={() => setCreateAccModalVisible(false)}>
+            <Pressable onPress={cancelCreateAccModal}>
               <Text style={styles.modalBackText}>Cancel</Text>
             </Pressable>
           </View>

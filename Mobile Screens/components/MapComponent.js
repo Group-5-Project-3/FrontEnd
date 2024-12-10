@@ -26,6 +26,7 @@ import {
   deleteFavoriteTrail,
   findUserByUserId,
   getCheckInsByUserId,
+  getCoordinates,
   getFavoriteTrailsByUserId,
   getTrailByPlacesId,
   getTrailReviews,
@@ -35,6 +36,7 @@ import StarRating from "react-native-star-rating-widget";
 import { AirbnbRating } from "react-native-ratings";
 import { ScrollView } from "react-native";
 import { err } from "react-native-svg";
+import CurrentLocationIcon from "../../assets/current-location-icon.png";
 
 const MapComponent = () => {
   const [userName, setUserName] = useState(null);
@@ -47,6 +49,8 @@ const MapComponent = () => {
   });
   const [userLat, setUserLat] = useState(null);
   const [userLong, setUserLong] = useState(null);
+  const [searchLat, setSearchLat] = useState(null);
+  const [searchLong, setSearchLong] = useState(null);
 
   const [places, setPlaces] = useState([]);
   const resolvedIcon = Asset.fromModule(TreeLogo).uri;
@@ -57,11 +61,17 @@ const MapComponent = () => {
   const [modalLat, setModalLat] = useState(0);
   const [modalRating, setModalRating] = useState(0);
   const [modalPhoto, setModalPhoto] = useState(null);
+  const [modalPhotoArr, setModalPhotoArr] = useState([]);
   const [modalAddress, setModalAddress] = useState(null);
   const [modalDesc, setModalDesc] = useState(null);
+  const [modalSent, setModalSent] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [modalAvgRate, setModalAvgRate] = useState(null);
+  const [modalDiff, setModalDiff] = useState(null);
 
   const [favArr, setFavArr] = useState(null);
   const [checkInsArr, setCheckInsArr] = useState(null);
+  const [sentModalVisible, setSentModalVisible] = useState(false);
 
   const [selectedPlace, setSelectedPlace] = useState(null);
 
@@ -241,12 +251,17 @@ const MapComponent = () => {
         setModalRating(trailInfo.avgRating);
         console.log("trailInfo description: ", trailInfo.description);
         setModalDesc(trailInfo.description);
+        setModalSent(trailInfo.sentiments);
+        setModalDiff(trailInfo.avgDifficulty);
+        setModalAvgRate(trailInfo.avgRating);
         console.log(
           "trailInfo.images[0].imageUrl: ",
           trailInfo.images[0].imageUrl
         );
         if (trailInfo.images[0].imageUrl) {
           setModalPhoto(trailInfo.images[0].imageUrl);
+          setModalPhotoArr(trailInfo.images);
+          console.log("setModalPhotoArr set to: ", modalPhotoArr);
         }
       } catch (error) {
         console.error("Error fetching trail info:", error);
@@ -255,41 +270,98 @@ const MapComponent = () => {
   };
 
   const checkIfThisTrailExist = async (place_id, place) => {
-    console.log("in checkIfThisTrailExist");
-    console.log("place_id passed in: ", place_id);
-    console.log("palce passed in: ", place);
-    const token = await AsyncStorage.getItem("@auth_token");
-    console.log("token: ", token);
+    console.log(`Checking if trail exists for place_id: ${place_id}`); // Log start of function
     try {
-      // Await the result of getTrailByPlacesId
-      console.log("going to getTrailByPlacesId...");
+      console.log("place.name: ", place.name);
+      console.log("calling getTrailByPlacesId in checkIfThisTrailExist...");
       const trail = await getTrailByPlacesId(place_id);
-      console.log("trail variable: ", trail);
-      if (trail != null) {
-        return trail;
-      } else {
+      console.log("latitude: ", place.geometry.location.lat);
+      console.log("longitude: ", place.geometry.location.lng);
+      console.log(
+        `Trail found in checkIfThisTrailExist: ${JSON.stringify(trail)}`
+      ); // Log trail details
+
+      console.log("trail.coordinates: ", trail.coordinates);
+
+      if (!trail.coordinates) {
         console.log(
-          `Trail with place_id ${place_id} not found. Creating a new trail.`
+          `Trail with place_id: ${place_id} is missing coordinates. Updating coordinates.`
         );
-        const newTrail = {
-          placesId: place_id,
-          name: place.name,
-          location: place.vicinity,
-          description: "New review",
-        };
-        // MIGHT CAUSE ERROR IF NEW TRAIL IS CREATE AND DOES NOT HAVE IMAGE FIELD
-        return await createTrail(newTrail); // Call the createTrail function to add it to the database
+
+        console.log("latitude: ", place.geometry.location.lat);
+        console.log("longitude: ", place.geometry.location.lng);
+
+        const latitude = place.geometry.location.lat;
+        const longitude = place.geometry.location.lng;
+
+        console.log("before updateTrailCoordinates");
+
+        await updateTrailCoordinates(place_id, latitude, longitude);
+        console.log(
+          `Coordinates updated to: latitude ${latitude}, longitude ${longitude} for trail ID: ${place_id}`
+        );
       }
+      console.log("trail found, returning trail:", trail);
+      return trail;
     } catch (error) {
-      console.log("back in checkIfThisTrailExist, was null");
-      // For any other errors, log and re-throw
-      console.error("An unexpected error occurred:", error.message);
+      // console.error(
+      //   `Error while checking trail for place_id: ${place_id}`,
+      //   error
+      // );
+
+      console.log(
+        `Trail with place_id: ${place_id} not found. Creating a new trail.`
+      );
+
+      const coordinates = `${place.geometry.location.lat},${place.geometry.location.lng}`;
+      const newTrail = {
+        placesId: place_id,
+        name: place.name,
+        location: place.vicinity,
+        description: "New review",
+        coordinates,
+      };
+
+      try {
+        const createdTrail = await createTrail(newTrail);
+        console.log(`New trail created: ${JSON.stringify(createdTrail)}`);
+        return createdTrail;
+      } catch (creationError) {
+        console.error(
+          `Error creating trail for place_id: ${place_id}`,
+          creationError
+        );
+        throw creationError;
+      }
+      // throw error;
+    }
+  };
+
+  const updateTrailCoordinates = async (id, latitude, longitude) => {
+    try {
+      const token = localStorage.getItem("auth_token"); // Retrieve token from localStorage
+      const response = await axios.put(
+        `https://cst438project3-6ec60cdacb89.herokuapp.com/api/trails/${id}/coordinates/${latitude}/${longitude}`,
+        null,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error updating coordinates:",
+        error.response?.data || error.message
+      );
       throw error;
     }
   };
 
   const fetchNearbyPlaces = async (latitude, longitude) => {
-    const apiKey = "AIzaSyBnst1HITYqMUngjdlU5bqarqkHvFG2Emc"; // Replace with your actual API key
+    const apiKey = TEMP; // Replace with your actual API key
     const radius = 5000;
 
     console.log("in fetchNearbyPlaces");
@@ -302,6 +374,7 @@ const MapComponent = () => {
             location: `${latitude},${longitude}`,
             radius,
             type: "park", // Type can be "park" or other categories like "trail"
+            keyword: "hiking",
             key: apiKey,
           },
         }
@@ -491,14 +564,31 @@ const MapComponent = () => {
   };
 
   const getReviewsForPark = async () => {
-    console.log("in getReviewForPark");
-    console.log("trail id: ", trailId);
-    console.log("calling api...");
-    const response = await getTrailReviews(trailId);
-    setParkReviews(response);
-    console.log("response data: ", response);
-    setModalVisible(false);
-    setReviewsModal(true);
+    try {
+      console.log("in getReviewForPark");
+      console.log("trail id: ", trailId);
+      console.log("calling api...");
+      const reviews = await getTrailReviews(trailId);
+      console.log("reviews BEFORE username: ", reviews);
+
+      const reviewsWithUsernames = await Promise.all(
+        reviews.map(async (review) => {
+          const userName = await getUserNameForReview(review.userId);
+          return {
+            ...review,
+            username: userName || "Anonymous",
+          };
+        })
+      );
+
+      setParkReviews(reviewsWithUsernames);
+      console.log("Reviews AFTER adding usernames:", reviewsWithUsernames);
+
+      setModalVisible(false);
+      setReviewsModal(true);
+    } catch {
+      console.error("error in getReviewsForPark");
+    }
   };
 
   const openDesc = async () => {
@@ -509,10 +599,47 @@ const MapComponent = () => {
 
   const openSent = async () => {
     console.log("opening sent modal");
+    setModalVisible(false);
+    setSentModalVisible(true);
   };
 
   const openReviews = async () => {
     console.log("opening reviews modal");
+  };
+
+  const handleSearch = async () => {
+    console.log("in handleSearch");
+
+    if (!searchValue) {
+      alert("Please Enter A Search Value");
+      return;
+    }
+
+    try {
+      const searchData = await getCoordinates(searchValue); // Assuming getCoordinates returns { lat, lng }
+      console.log("searchData from API is: ", searchData);
+
+      // Validate the coordinates before updating the location
+      if (searchData && searchData.lat && searchData.lng) {
+        setLocation({
+          latitude: parseFloat(searchData.lat), // Ensure numbers are passed
+          longitude: parseFloat(searchData.lng),
+          latitudeDelta: 0.0922, // Default zoom level
+          longitudeDelta: 0.0421,
+        });
+        fetchNearbyPlaces(searchData.lat, searchData.lng);
+        console.log("Updated location: ", {
+          latitude: searchData.lat,
+          longitude: searchData.lng,
+        });
+      } else {
+        console.error("Invalid coordinates returned by API");
+        alert("Could not find location. Please try again.");
+      }
+    } catch (e) {
+      // console.error("Error trying to fetch data from getCoordinates: ", e);
+      alert("An error occurred while searching. Please try again.");
+    }
   };
 
   const handleCloseMdoal = async () => {
@@ -522,15 +649,24 @@ const MapComponent = () => {
     setModalLat(0);
     setModalRating(0);
     setModalPhoto(null);
+    setModalPhotoArr([]);
     setModalAddress(null);
     setModalDesc(null);
+    setModalSent([]);
     setSelectedPlace(null);
     setTrailId(null);
+    setModalAvgRate(null);
+    setModalDiff(null);
     setModalVisible(false);
   };
 
   const closeDescModal = () => {
     setDescModalVisible(false);
+    setModalVisible(true);
+  };
+
+  const closeSentModal = () => {
+    setSentModalVisible(false);
     setModalVisible(true);
   };
 
@@ -540,6 +676,42 @@ const MapComponent = () => {
     setDifficulty(0);
     setReviewModalVisible(false);
     setModalVisible(true);
+  };
+
+  const goToCurrentLocation = () => {
+    setLocation({
+      latitude: userLat,
+      longitude: userLong,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+    fetchNearbyPlaces(userLat, userLong);
+    setSearchValue("");
+  };
+
+  const getUserNameForReview = async (userID) => {
+    try {
+      console.log("in getUserNameForReview");
+      console.log("userID: ", userID);
+      console.log("calling.... findUserByUserId...");
+      const userData = await findUserByUserId(userID);
+      console.log(" in getUserNameForReview data: ", userData);
+      return userData?.username || "Anonymous";
+    } catch {
+      console.log("error getting username");
+      return "Anonymous";
+    }
+  };
+
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -599,15 +771,15 @@ const MapComponent = () => {
           <Text style={styles.modalTitleText}>{modalName}</Text>
 
           <View style={styles.flexContainer}>
-            <Pressable onPress={openDesc}>
+            <TouchableOpacity onPress={openDesc} activeOpacity={0.5}>
               <Text style={styles.modalText}>Descripton</Text>
-            </Pressable>
-            <Pressable onPress={openSent}>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={openSent} activeOpacity={0.5}>
               <Text style={styles.modalText}>Sentiments</Text>
-            </Pressable>
-            <Pressable onPress={getReviewsForPark}>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={getReviewsForPark} activeOpacity={0.5}>
               <Text style={styles.modalText}>Reviews</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.lineSeprator}></View>
@@ -622,6 +794,28 @@ const MapComponent = () => {
           ) : (
             <Text style={styles.inputText}>No Images Available.</Text>
           )}
+
+          <View style={styles.ratingContainer}>
+            <Text style={styles.ratingLabel}>Average Rating:</Text>
+            <StarRating
+              rating={modalAvgRate || 0} // Fallback to 0 if modalAvgRate is null
+              onChange={() => {}} // Disable interaction (optional)
+              starSize={25} // Adjust star size
+              enableHalfStar={true} // Enable half stars for better granularity
+              starStyle={{ marginHorizontal: 2 }} // Optional styling
+            />
+          </View>
+
+          <View style={styles.ratingContainer}>
+            <Text style={styles.ratingLabel}>Average Difficulty:</Text>
+            <StarRating
+              rating={modalDiff || 0} // Fallback to 0 if modalDiff is null
+              onChange={() => {}} // Disable interaction (optional)
+              starSize={25} // Adjust star size
+              enableHalfStar={true} // Enable half stars
+              starStyle={{ marginHorizontal: 2 }} // Optional styling
+            />
+          </View>
 
           {/* <View style={styles.lineSeprator} width="100%"></View> */}
 
@@ -738,12 +932,30 @@ const MapComponent = () => {
           <View style={styles.centerModalContainer}>
             <Text style={styles.modalTitleText}>Description</Text>
             <Text style={styles.modalTextCentered}>
-              {modalDesc || "No description available."}
+              {modalDesc !== "New review"
+                ? modalDesc
+                : "No description available."}
             </Text>
-            <Pressable
-              onPress={closeDescModal}
-              style={styles.modalActionButton}
-            >
+            <Pressable onPress={closeDescModal} style={styles.backDescButton}>
+              <Text style={styles.bottomViewText}>Back</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={sentModalVisible}
+        onRequestClose={() => setSentModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.centerModalContainer}>
+            <Text style={styles.modalTitleText}>Sentiments</Text>
+            <Text style={styles.modalTextCentered}>
+              {sentModal ? modalDesc : "No sentiments available."}
+            </Text>
+            <Pressable onPress={closeSentModal} style={styles.backDescButton}>
               <Text style={styles.bottomViewText}>Back</Text>
             </Pressable>
           </View>
@@ -769,16 +981,30 @@ const MapComponent = () => {
             {parkReviews && parkReviews.length > 0 ? (
               parkReviews.map((review, index) => (
                 <View key={index} style={styles.reviewContainer}>
-                  <Text style={styles.reviewUser}>
-                    {review.user_name || "Anonymous"}:
-                  </Text>
+                  <Text style={styles.reviewUser}>{review.username}:</Text>
                   <Text style={styles.reviewComment}>{review.comment}</Text>
-                  <Text style={styles.reviewDifficulty}>
-                    Difficulty: {review.difficultyRating}/5
-                  </Text>
-                  <Text style={styles.reviewRating}>
-                    Rating: {review.rating}/5
-                  </Text>
+
+                  <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingLabel}>Difficulty:</Text>
+                    <StarRating
+                      rating={review.difficultyRating || 0} // Use the review's difficulty rating
+                      onChange={() => {}} // Disable interaction
+                      starSize={15} // Adjust star size
+                      enableHalfStar={true} // Enable half stars
+                      starStyle={{ marginHorizontal: 2 }} // Style stars
+                    />
+                  </View>
+
+                  <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingLabel}>Rating:</Text>
+                    <StarRating
+                      rating={review.rating || 0} // Use the review's rating
+                      onChange={() => {}} // Disable interaction
+                      starSize={15} // Adjust star size
+                      enableHalfStar={true} // Enable half stars
+                      starStyle={{ marginHorizontal: 2 }} // Style stars
+                    />
+                  </View>
                 </View>
               ))
             ) : (
@@ -788,13 +1014,28 @@ const MapComponent = () => {
         </SafeAreaView>
       </Modal>
 
-      <TextInput
-        style={styles.textInput}
-        placeholder="Search for a location"
-        placeholderTextColor="#aaa"
-        // value={searchQuery}
-        // onChangeText={setSearchQuery}
-      />
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Search for a location"
+          placeholderTextColor="#aaa"
+          value={searchValue}
+          onChangeText={setSearchValue}
+        />
+        <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          <Text style={styles.searchButtonText}>Search</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.currentLocationButton}
+          onPress={goToCurrentLocation}
+        >
+          <Image
+            source={CurrentLocationIcon}
+            style={styles.currentImage}
+            resizeMode="contain" // Ensures the image maintains its aspect ratio
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -842,6 +1083,10 @@ const styles = StyleSheet.create({
     borderTopStartRadius: scale * 20,
     borderTopEndRadius: scale * 20,
     marginTop: "15%",
+  },
+  currentImage: {
+    width: 18,
+    height: 18,
   },
   modalTitleText: {
     color: "white",
@@ -932,7 +1177,7 @@ const styles = StyleSheet.create({
   reviewComment: {
     color: "white",
     fontStyle: "italic",
-    fontSize: 14,
+    fontSize: 24,
   },
   modalText: {
     color: "white",
@@ -1041,6 +1286,84 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5, // Shadow for Android
+  },
+  searchContainer: {
+    position: "absolute",
+    top: 60, // Adjust based on your layout
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  textInput: {
+    flex: 1,
+    height: 50,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+  },
+  searchButton: {
+    backgroundColor: "#027bff",
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 25,
+    // borderTopRightRadius: 10,
+    // borderBottomRightRadius: 10,
+  },
+  currentLocationButton: {
+    backgroundColor: "red",
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  searchButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  button: {
+    backgroundColor: "#027bff",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginLeft: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  backDescButton: {
+    backgroundColor: "#027bff",
+    width: "50%",
+    height: 50,
+    borderRadius: scale * 10,
+    alignItems: "center",
+    justifyContent: "center",
+    margin: height / 100, // Vertical spacing
+  },
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  ratingLabel: {
+    fontSize: scaledFontSize(12),
+    color: "white",
+    marginRight: 10,
+    fontWeight: "bold",
   },
 });
 

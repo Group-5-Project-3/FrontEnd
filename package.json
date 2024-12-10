@@ -19,6 +19,7 @@
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
     "expo": "~51.0.28",
+    "expo-image-picker": "^16.0.3",
     "expo-location": "~17.0.1",
     "expo-status-bar": "~1.12.1",
     "jwt-decode": "^4.0.0",
